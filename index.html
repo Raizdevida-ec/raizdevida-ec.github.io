@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAÍZ: autoanálisis anónimo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Plan: herramienta de un solo carril, pasos tipo asistente, resultado como ficha clínica legible. */
+:root{
+  --bg:#f3f5f2;
+  --surface:#ffffff;
+  --ink:#1c2620;
+  --muted:#5b6a61;
+  --line:#d6ddd7;
+  --accent:#2f6b4f;
+  --accent-ink:#ffffff;
+  --accent-soft:#e1ede6;
+  --alert:#b3261e;
+  --alert-soft:#fbe9e7;
+  --warn:#8a5a00;
+  --warn-soft:#fff3d6;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121815; --surface:#1b231f; --ink:#e6ece8; --muted:#9fb0a6; --line:#2e3a34;
+    --accent:#6fbf97; --accent-ink:#0f1a14; --accent-soft:#1f3329;
+    --alert:#ff8a80; --alert-soft:#3a1d1b; --warn:#f2c46b; --warn-soft:#352a12;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121815; --surface:#1b231f; --ink:#e6ece8; --muted:#9fb0a6; --line:#2e3a34;
+  --accent:#6fbf97; --accent-ink:#0f1a14; --accent-soft:#1f3329;
+  --alert:#ff8a80; --alert-soft:#3a1d1b; --warn:#f2c46b; --warn-soft:#352a12;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5}
+.wrap{max-width:640px;margin:0 auto;padding:20px 16px 64px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.brand{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:.02em}
+.brand small{display:block;font-family:var(--body);font-weight:400;font-size:13px;color:var(--muted);letter-spacing:0}
+.sos{background:var(--alert);color:#fff;border:0;border-radius:999px;padding:8px 14px;font:600 14px var(--body);cursor:pointer}
+.progress{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:20px}
+.progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0 0 8px}
+h1{font-size:28px;line-height:1.15}
+h2{font-size:22px}
+h3{font-size:18px;margin-top:18px}
+p{margin:0 0 12px}
+.muted{color:var(--muted)}
+.step-label{font-size:13px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.q{margin:18px 0 0;padding-top:16px;border-top:1px solid var(--line)}
+.q:first-of-type{border-top:0;padding-top:0}
+.q-text{font-weight:600;margin-bottom:10px}
+.opts{display:grid;gap:8px}
+.opts.row{grid-template-columns:repeat(auto-fit,minmax(110px,1fr))}
+.opt{display:block;text-align:left;width:100%;background:var(--bg);color:var(--ink);border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;font:400 16px var(--body);cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);font-weight:600}
+.opt:focus-visible,.btn:focus-visible,.sos:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.nav{display:flex;gap:10px;justify-content:space-between;margin-top:22px}
+.btn{border:0;border-radius:10px;padding:12px 18px;font:600 16px var(--body);cursor:pointer}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.err{color:var(--alert);font-size:15px;margin-top:10px;min-height:1em}
+.note{background:var(--accent-soft);border-radius:10px;padding:12px 14px;font-size:15px}
+.banner{border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.banner.alert{background:var(--alert-soft);border-left:5px solid var(--alert)}
+.banner.warn{background:var(--warn-soft);border-left:5px solid var(--warn)}
+.level{display:flex;gap:14px;align-items:flex-start;padding:16px;border-radius:12px;background:var(--accent-soft);margin:10px 0}
+.level .num{flex:none;width:52px;height:52px;border-radius:12px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:700 22px var(--display)}
+.pill{display:inline-block;font-size:13px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);margin:0 6px 6px 0}
+.bars{display:grid;gap:8px;margin:8px 0 4px}
+.bar{display:grid;grid-template-columns:120px 1fr 34px;gap:10px;align-items:center;font-size:15px}
+.bar .track{height:10px;background:var(--line);border-radius:5px;overflow:hidden}
+.bar .fill{height:100%;background:var(--accent)}
+.bar b{font-variant-numeric:tabular-nums;text-align:right}
+ul{padding-left:20px;margin:6px 0 12px}
+li{margin-bottom:4px}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;background:var(--bg);border:1px dashed var(--line);border-radius:8px;padding:10px 12px;white-space:pre-wrap;word-break:break-word}
+.overlay{position:fixed;inset:0;background:rgba(10,15,12,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+.overlay.open{display:flex}
+.overlay .card{max-width:480px;width:100%}
+.tel{display:block;font:700 24px var(--display);color:var(--alert);text-decoration:none;margin:4px 0 2px}
+.foot{font-size:13px;color:var(--muted);margin-top:24px}
+@media (prefers-reduced-motion: reduce){.progress i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">RAÍZ<small>Autoanálisis anónimo de recuperación</small></div>
+    <button class="sos" id="sosBtn" type="button">Necesito ayuda ya</button>
+  </header>
+  <div class="progress" aria-hidden="true"><i id="prog"></i></div>
+  <main id="app" class="card" aria-live="polite"></main>
+  <p class="foot">Nada de lo que respondes se guarda ni se envía a ningún lugar. Al cerrar la página, todo se borra. Esta herramienta orienta y no reemplaza la evaluación de un profesional de salud.</p>
+</div>
+
+<div class="overlay" id="crisis" role="dialog" aria-modal="true" aria-labelledby="crisisTitle">
+  <div class="card">
+    <h2 id="crisisTitle">No estás solo. Hay ayuda ahora mismo.</h2>
+    <p>Si estás en peligro o piensas hacerte daño, llama ya:</p>
+    <p class="muted" style="margin:0">Emergencias en Ecuador</p>
+    <a class="tel" href="tel:911">911</a>
+    <p class="muted" style="margin:10px 0 0">Ministerio de Salud Pública, apoyo psicológico gratuito</p>
+    <a class="tel" href="tel:171">171, opción 6</a>
+    <p style="font-size:15px" class="muted">Marca 171 y elige la opción 6. Si no contestan, llama al 911.</p>
+    <p>Si puedes, escribe ahora a alguien de confianza: “¿Puedes venir o llamarme? No estoy bien.”</p>
+    <div class="nav"><button class="btn primary" id="closeCrisis" type="button">Ya estoy a salvo, continuar</button></div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- Preguntas ---------- */
+var STEPS = [
+  {id:"intro"},
+  {id:"edad", label:"Antes de empezar", title:"¿Tienes 18 años o más?", qs:[
+    {k:"adulto", t:"Edad", o:[["si","Sí, tengo 18 o más"],["no","No, soy menor de 18"]]}
+  ]},
+  {id:"seg", label:"Parte 0 · Seguridad", title:"Primero, tu seguridad", sub:"Responde con sinceridad. Nadie más verá estas respuestas.", qs:[
+    {k:"s1", t:"En las últimas dos semanas, ¿has pensado en quitarte la vida o en hacerte daño?", o:[["no","No"],["si","Sí"]], row:true},
+    {k:"s2", t:"Al dejar de consumir, ¿has tenido temblores, convulsiones, alucinaciones, confusión o sudor intenso?", o:[["no","No"],["si","Sí"]], row:true},
+    {k:"s3", t:"¿Estás viviendo ahora una situación de violencia o abuso?", o:[["no","No"],["si","Sí"]], row:true},
+    {k:"s4", t:"En el último año, ¿tuviste una sobredosis o perdiste el conocimiento por consumir?", o:[["no","No"],["si","Sí"]], row:true}
+  ]},
+  {id:"cons", label:"Parte 1 · Tu consumo", title:"Cómo es tu consumo", qs:[
+    {k:"sust", t:"Sustancia principal", o:[["alcohol","Alcohol"],["cocaina","Cocaína o pasta base"],["marihuana","Marihuana"],["pastillas","Pastillas (calmantes, para dormir)"],["opioides","Opioides (heroína, H, fentanilo)"],["meta","Metanfetamina o cristal"],["otra","Otra o varias"]]},
+    {k:"freq", t:"En el último mes, ¿con qué frecuencia consumiste?", o:[["0","No consumí (estoy en recuperación)"],["1","Menos de una vez por semana"],["2","De 1 a 3 veces por semana"],["3","De 4 a 6 veces por semana"],["4","Todos los días"]]},
+    {k:"tiempo", t:"¿Hace cuánto empezó el consumo problemático?", o:[["0","Menos de 1 año"],["1","De 1 a 5 años"],["2","Más de 5 años"]]},
+    {k:"trat", t:"¿Has estado antes en tratamiento o internado?", o:[["0","Nunca"],["1","Sí, una vez"],["2","Sí, 2 o más veces y recaí"]]}
+  ]},
+  {id:"vida", label:"Parte 1 · Tu entorno", title:"Tu vida alrededor del consumo", qs:[
+    {k:"entorno", t:"En tu casa o tu círculo más cercano…", o:[["0","Nadie consume"],["1","Alguien consume a veces"],["2","Se consume con frecuencia"]]},
+    {k:"apoyo", t:"¿Tienes al menos una persona de confianza que te apoya?", o:[["si","Sí"],["no","No"]], row:true},
+    {k:"func", t:"¿Cuánto ha afectado el consumo tu trabajo, estudios o familia?", o:[["0","Nada o casi nada"],["1","Algo"],["2","Mucho (perdí trabajo, estudios o familia)"]]},
+    {k:"mental", t:"¿Tienes diagnóstico o síntomas fuertes de depresión, ansiedad, bipolaridad u otro problema de salud mental?", o:[["no","No"],["nose","No lo sé"],["si","Sí"]], row:true}
+  ]},
+  {id:"funA", label:"Parte A · La función", title:"¿Qué te daba la sustancia? (1 de 2)", sub:"0 = nunca · 1 = a veces · 2 = seguido · 3 = casi siempre", qs:[
+    {k:"i1", f:"I", t:"Consumía porque la vida normal me aburría."},
+    {k:"i2", f:"I", t:"Me gustaba el riesgo, la noche, lo prohibido."},
+    {k:"i3", f:"I", t:"Sin sustancia siento que no estoy vivo."},
+    {k:"e1", f:"E", t:"Consumía para dejar de pensar o de sobrepensar."},
+    {k:"e2", f:"E", t:"Lo usaba para huir del estrés, las deudas o los problemas."},
+    {k:"e3", f:"E", t:"Me ayudaba a no sentir que estaba perdiendo el tiempo."}
+  ]},
+  {id:"funB", label:"Parte A · La función", title:"¿Qué te daba la sustancia? (2 de 2)", sub:"0 = nunca · 1 = a veces · 2 = seguido · 3 = casi siempre", qs:[
+    {k:"c1", f:"C", t:"Sin sustancia me cuesta hablar con la gente."},
+    {k:"c2", f:"C", t:"Me sentía parte de un grupo solo cuando consumía."},
+    {k:"c3", f:"C", t:"Me daba valor para acercarme, reír o mostrarme."},
+    {k:"d1", f:"D", t:"Consumía para no recordar cosas que me pasaron."},
+    {k:"d2", f:"D", t:"Lo usaba cuando sentía vergüenza, culpa o asco de mí."},
+    {k:"d3", f:"D", t:"Era lo único que me calmaba la tristeza o la ansiedad."}
+  ]},
+  {id:"raiz", label:"Parte B · La raíz", title:"¿Con cuál te identificas?", sub:"Marca todas las que apliquen. No necesitas contar detalles. Si ninguna aplica, continúa.", multi:true, qs:[
+    {k:"trauma", t:"Viví abuso sexual, violación, violencia física, abandono u otro hecho que todavía me pesa."},
+    {k:"imagen", t:"No acepto mi rostro o mi cuerpo. Evito espejos, fotos o que me vean."},
+    {k:"vinculo", t:"Soy tímido, apático o antisocial. Me siento solo aunque esté con gente."},
+    {k:"intens", t:"Siempre he necesitado estímulo fuerte. Me aburro rápido y actúo por impulso."},
+    {k:"mente", t:"Vivo atrapado en mi cabeza: sobrepienso, procrastino, me estreso por todo."}
+  ]},
+  {id:"res"}
+];
+var SCALE = [["0","0"],["1","1"],["2","2"],["3","3"]];
+
+/* ---------- Contenido de niveles y perfiles ---------- */
+var LEVELS = {
+  N4:{n:"4", name:"Desintoxicación con supervisión médica", what:"Dejar la sustancia sin un médico puede ser peligroso en tu caso. Lo primero es una desintoxicación en un hospital o una unidad con médico. Suele durar de unos días a dos semanas, según lo que el médico decida.",
+      team:["Médico o psiquiatra","Enfermería","Psicólogo desde el inicio"],
+      first:["Hoy: no dejes la sustancia de golpe por tu cuenta. Busca atención médica.","Llama al 171 y pide orientación para desintoxicación, o acude a urgencias de un hospital público.","Avisa a tu persona de confianza para que te acompañe."]},
+  N3:{n:"3", name:"Tratamiento residencial (internamiento)", what:"Tu situación pide un lugar protegido por un tiempo: el consumo es intenso, el entorno no ayuda o ya hubo varias recaídas. Un internamiento suele durar de 3 a 6 meses, con terapia diaria.",
+      team:["Psicólogo clínico","Psiquiatra","Consejero en adicciones","Terapia de grupo diaria","Trabajo con la familia"],
+      first:["Busca un CETAD o centro acreditado por el Ministerio de Salud Pública (MSP). Pide ver su permiso de funcionamiento.","Nunca aceptes un centro que encierre contra la voluntad, use golpes, castigos o te quite el contacto con tu familia. Eso es delito, no tratamiento.","Mientras consigues cupo, usa la ruta de tu perfil y el botón de ayuda."]},
+  N2:{n:"2", name:"Tratamiento ambulatorio intensivo", what:"Puedes seguir viviendo en tu casa, pero necesitas apoyo fuerte: de 3 a 5 días por semana, con varias horas de terapia cada día, durante unos 2 a 3 meses.",
+      team:["Psicólogo clínico","Médico o psiquiatra (revisión)","Grupo terapéutico","Mentor o compañero RAÍZ"],
+      first:["Pide una cita psicológica en el 171 (opción 6) o en tu centro de salud.","Elige una persona de apoyo y cuéntale tu plan.","Empieza esta semana con el sustituto principal de tu perfil."]},
+  N1:{n:"1", name:"Tratamiento ambulatorio", what:"Tu caso puede trabajarse con una sesión semanal con un psicólogo, un grupo de apoyo y tu ruta RAÍZ, mientras sigues con tu vida diaria.",
+      team:["Psicólogo (1 sesión por semana)","Grupo de apoyo","Compañero RAÍZ"],
+      first:["Agenda una primera cita psicológica.","Escribe tus 3 disparadores principales (hora, lugar, emoción).","Practica 3 veces esta semana el sustituto de tu perfil."]},
+  NM:{n:"M", name:"Mantenimiento y prevención de recaídas", what:"Ya no estás consumiendo. El objetivo ahora es sostenerlo y sanar la raíz para que el hueco no se llene con otra cosa.",
+      team:["Psicólogo (cada 2 a 4 semanas)","Grupo de apoyo","Mentor o compañero RAÍZ"],
+      first:["Revisa tu plan de crisis: a quién llamas y qué haces en los primeros 15 minutos de un antojo.","Trabaja la raíz de tu perfil con tu psicólogo.","Repite este autoanálisis en 4 semanas."]}
+};
+
+var PROFILES = {
+  P1:{name:"Herida de dolor y trauma", why:"La sustancia funcionaba como anestesia. Al dejarla, el dolor suele subir primero. Eso es normal y tiene tratamiento.",
+      therapy:["Terapia del trauma con un profesional: EMDR o terapia cognitivo-conductual centrada en trauma","Programas que tratan trauma y adicción a la vez (por ejemplo, Seeking Safety / Buscando Seguridad)","Evaluación psiquiátrica si hay insomnio, pesadillas o ataques de pánico"],
+      sub:["Respiración lenta con exhalación larga, 5 minutos","Anclaje 5-4-3-2-1: 5 cosas que ves, 4 que tocas, 3 que oyes, 2 que hueles, 1 que saboreas","Expresión sin palabras: dibujo, música, escritura privada","Movimiento suave: caminar, yoga adaptado al trauma"],
+      avoid:["Contar el trauma con detalle en grupos sin un profesional","Experiencias que den sensación de perder el control","Personas que te presionen a “superarlo” rápido"]},
+  P2:{name:"Herida de imagen", why:"La sustancia quitaba la vergüenza de ser visto. Sin ella aparecen el espejo, la comparación y el miedo a la mirada de otros.",
+      therapy:["Terapia cognitivo-conductual para la imagen corporal","Terapia centrada en la compasión","Evaluación de trastorno dismórfico corporal si la preocupación ocupa horas al día"],
+      sub:["Valor por lo que haces: un oficio, un deporte, un instrumento","Higiene digital: deja de seguir cuentas que te comparan y no uses filtros de rostro","Hablarte como le hablarías a un amigo","Exposición gradual a fotos, reuniones y espejos, en pasos pequeños"],
+      avoid:["Cirugías impulsivas","Dietas extremas o ejercicio compulsivo"]},
+  P3:{name:"Herida de vínculo", why:"La sustancia era el permiso para conectar. Sin ella vuelven la ansiedad social o el vacío. La apatía fuerte puede ser depresión y conviene evaluarla.",
+      therapy:["Terapia cognitivo-conductual para la ansiedad social","Entrenamiento en habilidades sociales y terapia de grupo","Activación conductual y evaluación de depresión"],
+      sub:["Grupos con una tarea compartida: fútbol, coro, taller, cocina, voluntariado","Eventos de euforia colectiva sin alcohol: baile, conciertos, fiestas sin sustancias","Escalera social: saludar, luego una pregunta, luego un café; un peldaño por semana","Un compañero fijo con quien hablar dos veces por semana"],
+      avoid:["Aislarte con pantallas toda la noche","Reemplazar la conexión real con pornografía o redes"]},
+  P4:{name:"Hambre de intensidad", why:"Tu cerebro pide estímulo fuerte y la sobriedad se siente gris. A veces hay TDAH sin diagnosticar, y vale la pena evaluarlo.",
+      therapy:["Entrevista motivacional","Manejo de contingencias: premios concretos por metas cumplidas y días sin consumo","Evaluación de TDAH con un profesional"],
+      sub:["Riesgo con reglas y entrenador: artes marciales, boxeo, escalada, ciclismo de montaña, surf","Competencia: carreras, torneos, retos de 30 días con marca personal","Algo nuevo cada semana: un lugar, una comida, una habilidad","Un proyecto propio con fecha límite"],
+      avoid:["Apuestas y juegos de azar","Velocidad al volante y peleas","Relaciones caóticas"]},
+  P5:{name:"Escape mental", why:"La sustancia apagaba la cabeza: el sobrepensar, el estrés, la culpa de procrastinar. Sin ella, la mente corre sin freno.",
+      therapy:["Terapia cognitivo-conductual","Terapia de aceptación y compromiso (ACT)","Prevención de recaídas basada en mindfulness"],
+      sub:["Actividades de flow: música, arte, oficio manual, deporte de ritmo","Hora de preocupación: 15 minutos al día para escribir lo que preocupa; fuera de esa hora, se aplaza","Trabajo en bloques cortos de 25 minutos con descanso","Naturaleza y caminatas sin el celular"],
+      avoid:["Scroll infinito y maratones de series","Videojuegos compulsivos para no pensar"]}
+};
+
+/* ---------- Estado (solo en memoria) ---------- */
+var A = {}; var step = 0; var crisisShown = false;
+
+var app = document.getElementById("app");
+var prog = document.getElementById("prog");
+
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+
+function render(){
+  var s = STEPS[step];
+  prog.style.width = Math.round(step/(STEPS.length-1)*100)+"%";
+  if(s.id==="intro") return renderIntro();
+  if(s.id==="res") return renderResult();
+  if(s.id==="menor") return renderMinor();
+  var h = '<div class="step-label">'+esc(s.label)+'</div><h2>'+esc(s.title)+'</h2>';
+  if(s.sub) h += '<p class="muted">'+esc(s.sub)+'</p>';
+  s.qs.forEach(function(q){
+    h += '<div class="q"><div class="q-text" id="lbl-'+q.k+'">'+esc(q.t)+'</div>';
+    if(s.multi){
+      var on = A[q.k]===true;
+      h += '<div class="opts"><button type="button" class="opt" id="opt-'+q.k+'" data-multi="'+q.k+'" aria-pressed="'+on+'">'+(on?"Sí, me identifico":"Me identifico")+'</button></div>';
+    } else {
+      var opts = q.o || SCALE;
+      var row = q.row || !q.o;
+      h += '<div class="opts'+(row?" row":"")+'" role="group" aria-labelledby="lbl-'+q.k+'">';
+      opts.forEach(function(o){
+        h += '<button type="button" class="opt" id="opt-'+q.k+'-'+o[0]+'" data-k="'+q.k+'" data-v="'+o[0]+'" aria-pressed="'+(A[q.k]===o[0])+'">'+esc(o[1])+'</button>';
+      });
+      h += '</div>';
+    }
+    h += '</div>';
+  });
+  h += '<div class="err" id="err"></div><div class="nav"><button class="btn ghost" type="button" id="back">Atrás</button><button class="btn primary" type="button" id="next">Continuar</button></div>';
+  app.innerHTML = h;
+  app.querySelectorAll("[data-k]").forEach(function(b){
+    b.addEventListener("click",function(){
+      var k=b.getAttribute("data-k"), v=b.getAttribute("data-v");
+      A[k]=v;
+      b.parentNode.querySelectorAll(".opt").forEach(function(x){x.setAttribute("aria-pressed", String(x===b));});
+      if(k==="s1" && v==="si" && !crisisShown){ crisisShown=true; openCrisis(); }
+    });
+  });
+  app.querySelectorAll("[data-multi]").forEach(function(b){
+    b.addEventListener("click",function(){
+      var k=b.getAttribute("data-multi"); A[k]=!A[k];
+      b.setAttribute("aria-pressed", String(A[k])); b.textContent = A[k]?"Sí, me identifico":"Me identifico";
+    });
+  });
+  document.getElementById("back").addEventListener("click",function(){ step=Math.max(0,step-1); render(); scrollTop(); });
+  document.getElementById("next").addEventListener("click",function(){
+    if(!s.multi){
+      var miss = s.qs.filter(function(q){return A[q.k]===undefined;});
+      if(miss.length){ document.getElementById("err").textContent = "Falta responder "+miss.length+(miss.length===1?" pregunta.":" preguntas."); return; }
+    }
+    if(s.id==="edad" && A.adulto==="no"){ return renderMinor(); }
+    step++; render(); scrollTop();
+  });
+}
+
+function scrollTop(){ try{ window.scrollTo(0,0); }catch(e){} }
+
+function renderIntro(){
+  app.innerHTML = '<div class="step-label">Bienvenido</div><h1>Descubre qué tipo de tratamiento necesitas</h1>'+
+    '<p>Son unas 35 preguntas cortas y toman alrededor de 10 minutos. Al final verás:</p>'+
+    '<ul><li>El <b>nivel de tratamiento</b> que corresponde a tu situación.</li><li>Tu <b>perfil RAÍZ</b>: qué te daba la sustancia y cuál es la herida de fondo.</li><li>Las <b>terapias recomendadas</b>, sustitutos sanos y qué evitar.</li><li>Un <b>código anónimo</b> para mostrarle a un profesional.</li></ul>'+
+    '<p class="note">Es 100 % anónimo: no pide nombre, correo ni teléfono, y no guarda nada.</p>'+
+    '<div class="nav"><span></span><button class="btn primary" type="button" id="start">Empezar</button></div>';
+  document.getElementById("start").addEventListener("click",function(){ step=1; render(); });
+}
+
+function renderMinor(){
+  prog.style.width="100%";
+  app.innerHTML = '<h2>Gracias por buscar ayuda</h2><p>Esta herramienta está hecha para adultos. Lo que estás viviendo importa mucho, y mereces apoyo de alguien que te acompañe en persona.</p>'+
+    '<ul><li>Habla con un adulto de confianza: un familiar, un profesor o el psicólogo de tu colegio (DECE).</li><li>Llama gratis al <b>171, opción 6</b> para hablar con un psicólogo.</li><li>Si estás en peligro, llama al <b>911</b>.</li></ul>'+
+    '<div class="nav"><button class="btn ghost" type="button" id="back">Atrás</button></div>';
+  document.getElementById("back").addEventListener("click",function(){ step=1; render(); });
+}
+
+/* ---------- Lógica de clasificación ---------- */
+function n(k){ return parseInt(A[k]||"0",10); }
+
+function compute(){
+  var F = {I:0,E:0,C:0,D:0};
+  ["i1","i2","i3"].forEach(function(k){F.I+=n(k);});
+  ["e1","e2","e3"].forEach(function(k){F.E+=n(k);});
+  ["c1","c2","c3"].forEach(function(k){F.C+=n(k);});
+  ["d1","d2","d3"].forEach(function(k){F.D+=n(k);});
+
+  var freq=n("freq");
+  var sev = freq + n("tiempo") + n("trat") + n("entorno") + (A.apoyo==="no"?2:0) + n("func") + (A.mental==="si"?1:0);
+  var depresor = ["alcohol","pastillas","opioides"].indexOf(A.sust)>=0;
+  var detox = A.s2==="si" || A.s4==="si" || (freq===4 && depresor);
+
+  var base;
+  if(freq===0){
+    base = (n("trat")===2 && A.apoyo==="no") || A.mental==="si" ? "N2" : "NM";
+  } else if(sev>=10 || (freq>=3 && n("trat")===2) || (freq>=3 && n("entorno")===2 && A.apoyo==="no")){
+    base="N3";
+  } else if(sev>=6 || A.mental==="si"){
+    base="N2";
+  } else base="N1";
+  if(A.mental==="si" && base==="N1") base="N2";
+
+  var cands=[];
+  if(A.trauma || F.D>=6) cands.push("P1");
+  if(A.imagen) cands.push("P2");
+  if(A.vinculo || F.C>=6) cands.push("P3");
+  if(A.intens || F.I>=6) cands.push("P4");
+  if(A.mente || F.E>=6) cands.push("P5");
+  if(!cands.length){
+    var map={I:"P4",E:"P5",C:"P3",D:"P1"};
+    var top=Object.keys(F).sort(function(a,b){return F[b]-F[a];})[0];
+    cands.push(map[top]);
+  }
+  return {F:F, sev:sev, detox:detox, base:base, primary:cands[0], second:cands[1]||null};
+}
+
+function barRow(label,v){
+  return '<div class="bar"><span>'+label+'</span><span class="track"><span class="fill" style="display:block;width:'+Math.round(v/9*100)+'%"></span></span><b>'+v+'/9</b></div>';
+}
+function list(arr){ return '<ul>'+arr.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul>'; }
+
+function renderResult(){
+  prog.style.width="100%";
+  var r = compute();
+  var L = LEVELS[r.base], P = PROFILES[r.primary], P2 = r.second?PROFILES[r.second]:null;
+  var h = '<div class="step-label">Tu resultado</div><h1>Tu ruta RAÍZ</h1>';
+
+  if(A.s1==="si") h += '<div class="banner alert"><b>Tu seguridad va primero.</b> Dijiste que has pensado en hacerte daño. Antes de cualquier plan, habla hoy con alguien: <b>171, opción 6</b> o <b>911</b>. <button class="btn ghost" type="button" id="reopen" style="margin-top:8px;padding:8px 12px">Ver números de ayuda</button></div>';
+  if(A.s3==="si") h += '<div class="banner alert"><b>Estás viviendo violencia.</b> Tienes derecho a estar a salvo. En peligro inmediato llama al <b>911</b>. También puedes acudir a la Fiscalía o a una organización de apoyo a víctimas. Tú decides cuándo y cuánto contar.</div>';
+
+  if(r.detox){
+    var D = LEVELS.N4;
+    h += '<h3>Paso 1: tipo de tratamiento</h3><div class="level"><div class="num">4</div><div><b>'+esc(D.name)+'</b><p style="margin:6px 0 0">'+esc(D.what)+'</p></div></div>';
+    h += '<div class="banner warn">Después de la desintoxicación, tu tratamiento sigue en el nivel '+L.n+': <b>'+esc(L.name)+'</b>.</div>';
+  } else {
+    h += '<h3>Tipo de tratamiento recomendado</h3>';
+  }
+  h += '<div class="level"><div class="num">'+L.n+'</div><div><b>'+esc(L.name)+'</b><p style="margin:6px 0 0">'+esc(L.what)+'</p></div></div>';
+  h += '<p><b>Tu equipo:</b></p><div>'+L.team.map(function(t){return '<span class="pill">'+esc(t)+'</span>';}).join("")+'</div>';
+
+  h += '<h3>Tu perfil: '+esc(P.name)+'</h3><p>'+esc(P.why)+'</p>';
+  if(P2) h += '<p class="muted">También tienes rasgos de <b>'+esc(P2.name)+'</b>. Trabaja primero tu perfil principal.</p>';
+  h += '<p><b>Qué te daba la sustancia</b></p><div class="bars">'+barRow("Intensidad",r.F.I)+barRow("Escape",r.F.E)+barRow("Conexión",r.F.C)+barRow("Apagar el dolor",r.F.D)+'</div><p class="muted" style="font-size:14px">6 o más = función fuerte.</p>';
+
+  h += '<h3>Terapias recomendadas</h3>'+list(P.therapy);
+  h += '<h3>Tus sustitutos sanos</h3>'+list(P.sub);
+  if(P2) h += '<p class="muted">Para tu perfil secundario: '+esc(P2.sub[0])+'.</p>';
+  h += '<h3>Evita</h3>'+list(P.avoid.concat(["Cambiar la sustancia por otra “más suave”, hierbas o pastillas sin receta"]));
+  h += '<h3>Tus primeros 7 días</h3>'+list((r.detox?LEVELS.N4.first:[]).concat(L.first));
+
+  var flags = [A.s1==="si"?"riesgo-suicida":"", A.s2==="si"?"abstinencia-fisica":"", A.s3==="si"?"violencia":"", A.s4==="si"?"sobredosis":"", A.mental==="si"?"salud-mental":""].filter(Boolean);
+  var code = "RAIZ-"+(r.detox?"N4>":"")+L.n.replace("M","M")+"-"+r.primary+(r.second?"/"+r.second:"")+"-I"+r.F.I+"E"+r.F.E+"C"+r.F.C+"D"+r.F.D+"-G"+r.sev;
+  var summary = "Código: "+code+"\n"+
+    "Nivel sugerido: "+(r.detox?"4 (desintoxicación médica) y luego ":"")+L.n+" ("+L.name+")\n"+
+    "Perfil: "+P.name+(P2?" · secundario: "+P2.name:"")+"\n"+
+    "Funciones (0-9): Intensidad "+r.F.I+", Escape "+r.F.E+", Conexión "+r.F.C+", Dolor "+r.F.D+"\n"+
+    "Sustancia principal: "+A.sust+" · frecuencia "+A.freq+"/4 · gravedad "+r.sev+"/15\n"+
+    "Alertas: "+(flags.length?flags.join(", "):"ninguna")+"\n"+
+    "Orientativo, no es diagnóstico.";
+  h += '<h3>Código para tu profesional</h3><p class="muted">Muéstralo o cópialo en tu primera cita. No contiene tu nombre ni datos personales.</p><div class="code" id="sum">'+esc(summary)+'</div>';
+  h += '<div class="nav"><button class="btn ghost" type="button" id="restart">Empezar de nuevo</button><button class="btn primary" type="button" id="copy">Copiar resumen</button></div><p class="err" id="copied" style="color:var(--accent)"></p>';
+  h += '<p class="note">Este resultado es una orientación. Un psicólogo, psiquiatra o médico debe confirmar el tratamiento. Repite el autoanálisis cada 4 semanas para ver tu avance.</p>';
+  app.innerHTML = h;
+
+  var re=document.getElementById("reopen"); if(re) re.addEventListener("click",openCrisis);
+  document.getElementById("restart").addEventListener("click",function(){ A={}; crisisShown=false; step=0; render(); scrollTop(); });
+  document.getElementById("copy").addEventListener("click",function(){
+    var out=document.getElementById("copied");
+    try{
+      navigator.clipboard.writeText(summary).then(function(){out.textContent="Resumen copiado.";},function(){out.textContent="No se pudo copiar. Mantén presionado el texto para copiarlo.";});
+    }catch(e){ out.textContent="No se pudo copiar. Mantén presionado el texto para copiarlo."; }
+  });
+}
+
+/* ---------- Crisis ---------- */
+var ov=document.getElementById("crisis");
+function openCrisis(){ ov.classList.add("open"); document.getElementById("closeCrisis").focus(); }
+document.getElementById("closeCrisis").addEventListener("click",function(){ ov.classList.remove("open"); });
+document.getElementById("sosBtn").addEventListener("click",openCrisis);
+document.addEventListener("keydown",function(e){ if(e.key==="Escape") ov.classList.remove("open"); });
+
+render();
+})();
+</script>
+</body>
+</html>
