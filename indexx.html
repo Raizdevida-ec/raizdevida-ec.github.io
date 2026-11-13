@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#138a7e">
+<title>Raíz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Plan: un solo mundo claro (como las capturas). Columna de teléfono centrada, tarjetas blancas de borde suave,
+   íconos en círculos menta, botón principal verde azulado, títulos azul marino, naranja solo para recordatorios. */
+:root{
+  --bg:#f6faf9; --surface:#ffffff; --navy:#13294b; --ink:#22303f; --muted:#5f6b76; --line:#e2ece9;
+  --teal:#138a7e; --teal-2:#3aa99a; --teal-ink:#ffffff; --mint:#e7f4f1; --mint-2:#f0f8f6;
+  --green:#1f9d55; --orange:#ef8a26; --orange-soft:#fff4e9; --red:#c0392b; --red-soft:#fdecea;
+  --display:"Outfit","Segoe UI",system-ui,sans-serif; --body:"Nunito Sans","Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5}
+.app{max-width:480px;margin:0 auto;min-height:100%;background:var(--surface);padding:18px 20px 112px;position:relative}
+@media (min-width:520px){ body{padding:20px 0} .app{border-radius:28px;box-shadow:0 10px 40px rgba(19,41,75,.08);min-height:calc(100% - 40px)} }
+.app.notabs{padding-bottom:32px}
+h1,h2,h3{font-family:var(--display);color:var(--navy);text-wrap:balance;margin:0 0 8px;letter-spacing:-.01em}
+h1{font-size:32px;line-height:1.12;font-weight:700} h2{font-size:22px;font-weight:600} h3{font-size:18px;font-weight:600}
+p{margin:0 0 12px} .muted{color:var(--muted)} .small{font-size:14px} .center{text-align:center}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px;min-height:56px}
+.circle{width:52px;height:52px;border-radius:50%;background:var(--mint);display:grid;place-items:center;border:0;color:var(--teal);cursor:pointer;flex:none;position:relative}
+.circle svg{width:24px;height:24px}
+.circle .dot{position:absolute;top:10px;right:11px;width:10px;height:10px;border-radius:50%;background:var(--orange);border:2px solid var(--mint)}
+.spacer{width:52px}
+.brand{display:flex;align-items:center;gap:8px;text-decoration:none}
+.word{font-family:var(--display);font-weight:600;font-size:28px;letter-spacing:-.01em;color:var(--navy)}
+.word span{color:var(--teal)}
+.ico{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.icircle{width:54px;height:54px;border-radius:50%;background:var(--mint);display:grid;place-items:center;color:var(--teal);flex:none}
+.icircle.lg{width:72px;height:72px} .icircle.lg .ico{width:32px;height:32px}
+.icircle.sm{width:42px;height:42px} .icircle.sm .ico{width:20px;height:20px}
+.card{background:var(--surface);border:1.5px solid var(--line);border-radius:22px;padding:20px;margin-bottom:16px}
+.card.tint{background:var(--mint-2);border-color:#bfe2db}
+.card.orange{background:var(--orange-soft);border-color:#f6c08c}
+.card.red{background:var(--red-soft);border-color:#f2b8b1}
+.btn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;border-radius:14px;min-height:58px;padding:12px 18px;font:600 19px var(--display);cursor:pointer;border:2px solid transparent;text-decoration:none}
+.btn .ico{width:26px;height:26px}
+.btn.main{background:var(--teal);color:var(--teal-ink)}
+.btn.main:hover{background:#0f7a6f}
+.btn.outline{background:var(--surface);color:var(--teal);border-color:var(--teal)}
+.btn.soft{background:var(--mint);color:var(--teal)}
+.btn.danger{background:var(--surface);color:var(--red);border-color:var(--red)}
+.btn.small{min-height:46px;font-size:16px;border-radius:12px}
+.stack{display:grid;gap:12px}
+.link{display:flex;align-items:center;justify-content:center;gap:8px;background:none;border:0;color:var(--muted);font:600 15px var(--body);cursor:pointer;margin:14px auto 0;padding:8px}
+.link .ico{width:20px;height:20px;color:var(--teal)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(--teal-2);outline-offset:2px}
+/* formularios */
+.field{display:grid;grid-template-columns:54px 1fr;gap:14px;margin-bottom:22px;align-items:start}
+.field .icircle{margin-top:-4px}
+.field label,.flabel{display:block;font-weight:700;color:var(--navy);margin:6px 0 8px;font-size:17px}
+.hint{font-size:14px;color:var(--muted);margin:-4px 0 8px}
+input[type=text],input[type=tel],input[type=number],input[type=password],input[type=date],textarea,select{width:100%;background:var(--surface);color:var(--ink);border:1.5px solid #d3dedb;border-radius:12px;padding:14px 16px;font:400 17px var(--body)}
+textarea{min-height:90px;resize:vertical}
+.suffix{position:relative} .suffix span{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.radios{display:grid;gap:10px}
+.radio{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--surface);border:1.5px solid #d3dedb;border-radius:12px;padding:14px 16px;font:600 17px var(--body);color:var(--navy);cursor:pointer}
+.radio .ico{color:var(--teal)}
+.radio .rdot{width:22px;height:22px;border-radius:50%;border:2px solid #b9c6c3;flex:none;display:grid;place-items:center}
+.radio[aria-pressed="true"]{border-color:var(--teal);background:var(--mint-2)}
+.radio[aria-pressed="true"] .rdot{border-color:var(--teal)}
+.radio[aria-pressed="true"] .rdot::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--teal)}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.switch{width:52px;height:30px;border-radius:999px;background:#cfd9d6;border:0;position:relative;cursor:pointer;flex:none}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .2s}
+.switch[aria-checked="true"]{background:var(--teal)} .switch[aria-checked="true"]::after{left:25px}
+.err{color:var(--red);font-size:15px;min-height:1.2em;margin:4px 0 0}
+.ok{color:var(--green);font-size:15px;min-height:1.2em;margin:4px 0 0}
+/* inicio */
+.dayscard{display:flex;align-items:center;gap:12px;padding:18px 16px;overflow:hidden}
+.dayscard .num{font:700 46px/1 var(--display);color:var(--teal);font-variant-numeric:tabular-nums}
+.dayscard .num small{font-size:22px;font-weight:600;margin-left:4px}
+.dayscard .lbl{color:var(--navy);font-weight:600}
+.dayscard .art{margin-left:auto;width:120px;flex:none}
+.status{display:flex;align-items:center;gap:14px}
+.status .txt{flex:1}
+.status h2{display:flex;align-items:center;gap:10px;font-size:24px;color:var(--teal)}
+.gdot{width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#5fd37f,#1f9d55);flex:none}
+.gdot.o{background:radial-gradient(circle at 35% 35%,#ffb466,#ef8a26)}
+.shield{width:78px;height:78px;border-radius:50%;background:#fff;display:grid;place-items:center;color:var(--green);flex:none}
+.shield .ico{width:40px;height:40px}
+.section-t{font:600 20px var(--display);color:var(--navy);margin:22px 0 12px}
+.ind{border:1.5px solid var(--line);border-radius:22px;overflow:hidden;margin-bottom:16px}
+.irow{display:grid;grid-template-columns:62px 1fr 40px;gap:14px;align-items:center;padding:16px;border-top:1.5px solid var(--line)}
+.irow:first-child{border-top:0}
+.irow .icircle{width:62px;height:62px}
+.irow b{display:block;color:var(--navy);font:600 18px var(--display)}
+.irow small{color:var(--muted);font-size:14px}
+.bar{height:10px;background:#e9f0ee;border-radius:6px;overflow:hidden;margin:8px 0 6px}
+.bar i{display:block;height:100%;background:var(--teal);border-radius:6px}
+.bar.o i{background:var(--orange)}
+.check{width:36px;height:36px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center}
+.check.o{background:var(--orange)} .check.g{background:#c9d4d1}
+.check .ico{width:20px;height:20px;stroke-width:2.6}
+.verse{position:relative}
+.verse q{display:block;font:500 19px/1.45 var(--display);color:var(--navy);quotes:"“" "”"}
+.verse cite{display:block;font-style:normal;font-weight:700;color:var(--teal);margin-top:8px}
+.list{list-style:none;padding:0;margin:4px 0 0}
+.list li{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
+.list li:first-child{border-top:0}
+.list .check{width:30px;height:30px;flex:none} .list .check .ico{width:17px;height:17px}
+.pill{display:inline-block;font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--mint);color:var(--teal);margin:0 6px 6px 0}
+/* antojo */
+.reminder{display:flex;gap:14px;align-items:flex-start;position:relative;overflow:hidden}
+.reminder h2{font-size:23px}
+.warnico{color:var(--orange);flex:none}
+.warnico svg{width:42px;height:42px}
+.funcgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.func{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:16px;text-align:left;cursor:pointer;font:400 15px var(--body);color:var(--muted)}
+.func b{display:block;font:600 18px var(--display);color:var(--navy);margin:8px 0 2px}
+.func:hover{border-color:var(--teal)}
+.timer{font:700 56px/1 var(--display);text-align:center;color:var(--teal);font-variant-numeric:tabular-nums;margin:6px 0}
+.breath{width:150px;height:150px;border-radius:50%;margin:10px auto;background:var(--mint);border:3px solid var(--teal);display:grid;place-items:center;font:600 18px var(--display);color:var(--teal);transition:transform 4s ease-in-out}
+.breath.in{transform:scale(1.22)}
+input[type=range]{width:100%;accent-color:var(--teal)}
+.rval{font:700 22px var(--display);color:var(--teal);font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--surface);border:1.5px solid #d3dedb;border-radius:999px;padding:8px 14px;font:600 15px var(--body);color:var(--navy);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--mint);border-color:var(--teal);color:var(--teal)}
+.seg{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.seg button{border:1.5px solid #d3dedb;background:var(--surface);border-radius:12px;padding:10px 2px;font:600 13px var(--body);color:var(--navy);cursor:pointer;display:grid;justify-items:center;gap:2px}
+.seg button span{font-size:24px;line-height:1}
+.seg button[aria-pressed="true"]{border-color:var(--teal);background:var(--mint)}
+/* historial */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;border:1.5px solid var(--line);border-radius:22px;padding:14px;margin-bottom:16px}
+.tile{border:1.5px solid var(--line);border-radius:16px;padding:14px;display:flex;gap:10px;align-items:flex-start}
+.tile .icircle{width:46px;height:46px} .tile .icircle .ico{width:22px;height:22px}
+.tile span{display:block;color:var(--navy);font-weight:700;font-size:14px;line-height:1.25}
+.tile b{display:block;font:700 30px/1.1 var(--display);color:var(--teal);margin-top:6px;font-variant-numeric:tabular-nums}
+.tile b.o{color:var(--orange)} .tile b small{font-size:16px;font-weight:600}
+.chart{width:100%;height:auto;display:block}
+.chart text{fill:var(--muted);font:12px var(--body)}
+.log{border-top:1px solid var(--line);padding:12px 0} .log:first-child{border-top:0}
+.log .lt{display:flex;justify-content:space-between;font-weight:700;color:var(--navy)}
+.tag{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px}
+.tag.g{background:var(--mint);color:var(--teal)} .tag.r{background:var(--red-soft);color:var(--red)}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;background:var(--bg);border:1px dashed #c9d6d3;border-radius:10px;padding:12px;white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto}
+/* perfil */
+.me{display:flex;gap:14px;align-items:center}
+.avatar{width:64px;height:64px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font:700 26px var(--display);flex:none}
+.menu{border:1.5px solid var(--line);border-radius:22px;overflow:hidden;margin-bottom:16px}
+.mi{display:flex;align-items:center;gap:14px;width:100%;background:var(--surface);border:0;border-top:1.5px solid var(--line);padding:14px 16px;text-align:left;font:600 17px var(--body);color:var(--navy);cursor:pointer}
+.mi:first-child{border-top:0}
+.mi .sub{display:block;font-weight:400;font-size:14px;color:var(--muted)}
+.mi .chev{margin-left:auto;color:var(--muted)}
+.person{display:grid;grid-template-columns:1fr 1fr 46px;gap:8px;margin-bottom:8px}
+.person button{border:1.5px solid #d3dedb;background:var(--surface);border-radius:12px;font-size:20px;color:var(--muted);cursor:pointer}
+/* test */
+.q{margin:16px 0 0;padding-top:14px;border-top:1px solid var(--line)} .q:first-of-type{border-top:0;padding-top:0}
+.qt{font-weight:700;color:var(--navy);margin-bottom:10px}
+.opts{display:grid;gap:8px} .opts.row{grid-template-columns:repeat(auto-fit,minmax(70px,1fr))}
+.opt{display:block;text-align:left;width:100%;background:var(--surface);color:var(--ink);border:1.5px solid #d3dedb;border-radius:12px;padding:12px 14px;font:600 16px var(--body);cursor:pointer}
+.opt[aria-pressed="true"]{border-color:var(--teal);background:var(--mint);color:var(--teal)}
+.progress{height:8px;background:#e9f0ee;border-radius:5px;overflow:hidden;margin-bottom:16px}
+.progress i{display:block;height:100%;background:var(--teal)}
+.level{display:flex;gap:14px;align-items:flex-start;padding:16px;border-radius:16px;background:var(--mint-2);border:1.5px solid #bfe2db;margin:10px 0}
+.level .n{flex:none;width:50px;height:50px;border-radius:14px;background:var(--teal);color:#fff;display:grid;place-items:center;font:700 22px var(--display)}
+.fbar{display:grid;grid-template-columns:118px 1fr 40px;gap:10px;align-items:center;font-size:15px;margin-bottom:6px}
+.fbar b{text-align:right;font-variant-numeric:tabular-nums}
+ul.plain{padding-left:20px;margin:6px 0 12px} ul.plain li{margin-bottom:6px}
+/* barra inferior */
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;background:var(--surface);border-top:1.5px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 6px calc(8px + env(safe-area-inset-bottom));z-index:5}
+@media (min-width:520px){.tabbar{bottom:20px;border-radius:0 0 28px 28px}}
+.tab{background:none;border:0;color:var(--muted);font:700 12px var(--body);padding:6px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:12px}
+.tab[aria-current="page"]{color:var(--teal);background:var(--mint)}
+.hidden{display:none!important}
+/* crisis */
+.overlay{position:fixed;inset:0;background:rgba(19,41,75,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:20}
+.overlay.open{display:flex}
+.overlay .card{max-width:440px;width:100%;max-height:90vh;overflow:auto;margin:0}
+.tel{display:block;font:700 26px var(--display);color:var(--red);text-decoration:none}
+.sosfab{position:fixed;right:max(16px,calc(50% - 224px));bottom:96px;z-index:6;background:var(--red);color:#fff;border:0;border-radius:999px;padding:10px 16px;font:700 14px var(--body);box-shadow:0 6px 18px rgba(192,57,43,.3);cursor:pointer}
+@media (prefers-reduced-motion: reduce){.breath,.switch::after{transition:none}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div id="view" aria-live="polite"></div>
+</div>
+<button class="sosfab hidden" id="sosBtn" type="button">Ayuda ya</button>
+<nav class="tabbar hidden" id="tabbar" aria-label="Secciones"></nav>
+
+<div class="overlay" id="crisis" role="dialog" aria-modal="true" aria-labelledby="crisisTitle">
+  <div class="card">
+    <h2 id="crisisTitle">No estás solo. Hay ayuda ahora mismo.</h2>
+    <p>Si estás en peligro o piensas hacerte daño, llama ya:</p>
+    <p class="muted small" style="margin:0">Emergencias en Ecuador</p>
+    <a class="tel" href="tel:911">911</a>
+    <p class="muted small" style="margin:10px 0 0">Ministerio de Salud Pública, apoyo psicológico gratuito</p>
+    <a class="tel" href="tel:171">171, opción 6</a>
+    <p class="small muted">Marca 171 y elige la opción 6. Si no contestan, llama al 911.</p>
+    <div id="crisisPeople"></div>
+    <button class="btn main" id="closeCrisis" type="button" style="margin-top:8px">Ya estoy a salvo, continuar</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ===================== Íconos e ilustraciones ===================== */
+var I={
+  back:'<path d="M19 12H5M11 6l-6 6 6 6"/>',
+  bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/>',
+  userplus:'<circle cx="10" cy="8" r="4"/><path d="M2 21c0-4 3.6-6.5 8-6.5 1.6 0 3 .3 4.3.9"/><path d="M19 14v6M16 17h6"/>',
+  cal:'<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-5.8 6.5-5.8s6.5 2.2 6.5 5.8"/><path d="M16 4.7a3.5 3.5 0 0 1 0 6.6M18 14.6c2.1.7 3.5 2.6 3.5 5.4"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>',
+  chev:'<path d="M9 6l6 6-6 6"/>',
+  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  shield:'<path d="M12 3l8 3v6c0 4.6-3.4 8.4-8 9-4.6-.6-8-4.4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',
+  save:'<path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/>',
+  heart:'<path d="M12 20s-7.5-4.6-7.5-10A4.5 4.5 0 0 1 12 7.3 4.5 4.5 0 0 1 19.5 10C19.5 15.4 12 20 12 20z"/>',
+  flame:'<path d="M12 2.5c3 4 6 6.5 6 11a6 6 0 0 1-12 0c0-3 1.5-5 3-6.5.5 2 1.5 3 3 3-1-3 0-5.5 0-7.5z"/>',
+  sprout:'<path d="M12 21v-9"/><path d="M12 12c0-4 3-6 7-6 0 4-3 6-7 6zM12 14c0-3.5-2.6-5.5-6.5-5.5 0 3.5 2.6 5.5 6.5 5.5z"/>',
+  chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  book:'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/>',
+  home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  lock:'<rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>',
+  phone:'<path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z"/>',
+  download:'<circle cx="12" cy="12" r="9.5"/><path d="M12 7v8M8.5 11.5L12 15l3.5-3.5M8 17.5h8"/>',
+  bulb:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>',
+  wave:'<path d="M2 15c2.5 0 2.5-3 5-3s2.5 3 5 3 2.5-3 5-3 2.5 3 5 3"/><path d="M2 19c2.5 0 2.5-3 5-3s2.5 3 5 3 2.5-3 5-3 2.5 3 5 3"/><path d="M7 8c1.5-3 4-4.5 7-4"/>',
+  wind:'<path d="M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/>',
+  plan:'<path d="M9 4h6v3H9z"/><path d="M7 5.5H5v15h14v-15h-2"/><path d="M8.5 12l2 2 4-4M8.5 17h7"/>',
+  key:'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/>',
+  trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+  gradcap:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/>',
+  handheart:'<path d="M12 9.5S9 7.6 9 5.6A1.8 1.8 0 0 1 12 4.4a1.8 1.8 0 0 1 3 1.2c0 2-3 3.9-3 3.9z"/><path d="M2 14h3l4 2h5a1.5 1.5 0 0 1 0 3H9.5M5 21l-3-1M14 17l5-2.5a1.6 1.6 0 0 1 2 2.4L15 21H8"/>',
+  dots:'<circle cx="12" cy="12" r="9"/><path d="M8 12h.01M12 12h.01M16 12h.01"/>',
+  pray:'<path d="M12 3c-1.5 2-2 5-2 8l-4 4 2.5 3 5.5-4"/><path d="M12 3c1.5 2 2 5 2 8l4 4-2.5 3-5.5-4"/>',
+  smile:'<circle cx="12" cy="12" r="9"/><path d="M8.5 14.5a4.5 4.5 0 0 0 7 0M9 9.5h.01M15 9.5h.01"/>',
+  warn:'<path d="M12 3L2 20.5h20z" fill="currentColor" stroke="currentColor" stroke-linejoin="round"/><path d="M12 9.5v5" stroke="#fff" stroke-width="2.6"/><circle cx="12" cy="17.6" r="1.4" fill="#fff" stroke="none"/>'
+};
+function ic(n,cls){return '<svg class="ico'+(cls?' '+cls:'')+'" viewBox="0 0 24 24" aria-hidden="true">'+I[n]+'</svg>';}
+
+function logo(size){
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 100 100" aria-hidden="true">'+
+    '<path d="M24 16 A42 42 0 1 0 76 16" fill="none" stroke="#138a7e" stroke-width="5" stroke-linecap="round"/>'+
+    '<path d="M50 58 V30" stroke="#13294b" stroke-width="3.5" stroke-linecap="round"/>'+
+    '<path d="M50 40 C50 28 60 22 72 22 C72 34 62 40 50 40Z" fill="#138a7e"/>'+
+    '<path d="M50 46 C50 36 41 31 30 31 C30 41 39 46 50 46Z" fill="#3aa99a"/>'+
+    '<path d="M32 58 H68" stroke="#13294b" stroke-width="3" stroke-linecap="round"/>'+
+    '<g fill="#3cb371"><circle cx="50" cy="64" r="2.6"/><circle cx="50" cy="71" r="2.6"/><circle cx="50" cy="78" r="2.6"/><circle cx="50" cy="85" r="2.3"/>'+
+    '<circle cx="44" cy="65" r="2.2"/><circle cx="39" cy="70" r="2.2"/><circle cx="35" cy="76" r="2"/>'+
+    '<circle cx="56" cy="65" r="2.2"/><circle cx="61" cy="70" r="2.2"/><circle cx="65" cy="76" r="2"/></g></svg>';
+}
+function wordmark(sz){ return '<span class="word" style="font-size:'+sz+'px">Ra<span>íz</span></span>'; }
+function heroArt(){
+  return '<svg viewBox="0 0 340 250" width="100%" role="img" aria-label="Una planta que crece desde sus raíces">'+
+    '<path d="M28 150 C10 80 70 22 160 26 C250 30 330 60 318 140 C308 210 240 236 160 232 C80 228 40 210 28 150Z" fill="#eaf5f2"/>'+
+    '<rect x="236" y="54" width="54" height="72" rx="3" fill="#fff" stroke="#d3e4e0" stroke-width="2"/>'+
+    '<g fill="#bfdcd6"><circle cx="263" cy="70" r="3"/><circle cx="263" cy="79" r="3"/><circle cx="263" cy="88" r="3"/><circle cx="263" cy="97" r="3"/><circle cx="263" cy="106" r="3"/></g>'+
+    '<path d="M263 70 C263 62 270 58 277 58 C277 66 270 70 263 70Z" fill="#9fd1c6"/>'+
+    '<ellipse cx="170" cy="222" rx="140" ry="10" fill="#dfeeea"/>'+
+    '<rect x="64" y="168" width="210" height="8" rx="4" fill="#4b5a6b"/>'+
+    '<path d="M86 176 V222 M252 176 V222" stroke="#4b5a6b" stroke-width="6" stroke-linecap="round"/>'+
+    '<path d="M134 110 H206 L198 168 H142Z" fill="#ffffff" stroke="#9fd1c6" stroke-width="3" stroke-linejoin="round"/>'+
+    '<path d="M137 126 H203" stroke="#c9a77a" stroke-width="3"/>'+
+    '<g fill="#3cb371"><circle cx="170" cy="134" r="3"/><circle cx="170" cy="143" r="3"/><circle cx="170" cy="152" r="3"/><circle cx="170" cy="160" r="2.6"/>'+
+    '<circle cx="162" cy="137" r="2.6"/><circle cx="155" cy="144" r="2.6"/><circle cx="150" cy="152" r="2.3"/><circle cx="178" cy="137" r="2.6"/><circle cx="185" cy="144" r="2.6"/><circle cx="190" cy="152" r="2.3"/></g>'+
+    '<path d="M170 126 V62" stroke="#13294b" stroke-width="4" stroke-linecap="round"/>'+
+    '<path d="M170 80 C170 58 188 46 212 46 C212 70 194 80 170 80Z" fill="#138a7e"/>'+
+    '<path d="M170 96 C170 78 154 68 132 68 C132 88 148 96 170 96Z" fill="#3aa99a"/>'+
+    '<path d="M170 64 C170 50 178 42 192 40 C192 54 184 62 170 64Z" fill="#5fc0a8"/>'+
+    '<circle cx="104" cy="94" r="17" fill="#1f9d55"/><path d="M96 94 l6 6 l11 -12" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>'+
+    '<path d="M120 102 Q 135 108 140 116" fill="none" stroke="#1f9d55" stroke-width="2" stroke-dasharray="3 4"/>'+
+    '<path d="M44 168 C40 150 50 136 60 130 M52 150 C44 146 40 140 40 134 M54 142 C62 140 66 134 66 128" stroke="#9fd1c6" stroke-width="3" fill="none" stroke-linecap="round"/>'+
+    '<rect x="222" y="156" width="34" height="12" rx="2" fill="#2f7f6f"/><rect x="226" y="148" width="28" height="8" rx="2" fill="#13294b"/>'+
+    '</svg>';
+}
+function plantArt(days){
+  var stage=days>=90?4:days>=30?3:days>=7?2:days>=1?1:0;
+  var s='<svg viewBox="0 0 120 120" width="100%" aria-hidden="true"><ellipse cx="60" cy="110" rx="48" ry="6" fill="#eaf5f2"/>'+
+    '<path d="M40 82 H80 L76 108 H44Z" fill="#fff" stroke="#9fd1c6" stroke-width="2.5" stroke-linejoin="round"/>'+
+    '<g fill="#3cb371"><circle cx="60" cy="92" r="2.2"/><circle cx="60" cy="99" r="2.2"/><circle cx="54" cy="95" r="1.8"/><circle cx="66" cy="95" r="1.8"/></g>';
+  var top=stage===0?74:stage===1?62:stage===2?50:stage===3?38:26;
+  s+='<path d="M60 84 V'+top+'" stroke="#13294b" stroke-width="3" stroke-linecap="round"/>';
+  var L=[["M60 72 C60 64 66 60 74 60 C74 68 68 72 60 72Z","#138a7e"],["M60 76 C60 68 54 64 46 64 C46 72 52 76 60 76Z","#3aa99a"],
+         ["M60 58 C60 48 68 42 80 42 C80 52 72 58 60 58Z","#138a7e"],["M60 62 C60 52 52 46 40 46 C40 56 48 62 60 62Z","#5fc0a8"],
+         ["M60 44 C60 34 68 28 80 26 C80 38 72 44 60 44Z","#3aa99a"],["M60 48 C60 38 52 32 40 30 C40 42 48 48 60 48Z","#138a7e"],
+         ["M60 30 C60 22 64 16 72 14 C72 22 68 28 60 30Z","#5fc0a8"],["M60 32 C60 24 56 18 48 16 C48 24 52 30 60 32Z","#3aa99a"]];
+  var n=stage===0?1:stage*2;
+  if(stage===0) s+='<path d="M60 76 C60 70 64 66 70 66 C70 72 66 76 60 76Z" fill="#3aa99a"/>';
+  else for(var i=0;i<Math.min(n,L.length);i++) s+='<path d="'+L[i][0]+'" fill="'+L[i][1]+'"/>';
+  return s+'</svg>';
+}
+function waveArt(){
+  return '<svg viewBox="0 0 340 170" width="100%" role="img" aria-label="Una ola que sube y vuelve a bajar">'+
+    '<path d="M18 110 C12 50 80 14 170 16 C262 18 330 50 320 110 C312 160 250 166 170 164 C90 162 24 160 18 110Z" fill="#eaf5f2"/>'+
+    '<circle cx="262" cy="56" r="20" fill="#ffe2bf"/>'+
+    '<path d="M30 124 C70 124 90 120 120 96 C150 72 170 46 196 46 C222 46 236 76 256 100 C276 122 296 126 312 126" fill="none" stroke="#138a7e" stroke-width="5" stroke-linecap="round"/>'+
+    '<path d="M30 140 C70 140 110 136 150 136 C200 136 260 140 312 140" fill="none" stroke="#9fd1c6" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 10"/>'+
+    '<text x="196" y="34" text-anchor="middle" font-size="13" font-weight="700" fill="#13294b" font-family="Nunito Sans, sans-serif">Pico</text>'+
+    '<text x="300" y="112" text-anchor="end" font-size="13" font-weight="700" fill="#138a7e" font-family="Nunito Sans, sans-serif">Baja sola</text>'+
+    '<text x="34" y="112" font-size="13" font-weight="700" fill="#13294b" font-family="Nunito Sans, sans-serif">Empieza</text>'+
+    '</svg>';
+}
+
+/* ===================== Datos (solo en este celular) ===================== */
+var KEY="raiz-de-vida-v2";
+var EMPTY={user:null,start:null,cleanSince:null,logs:[],cravings:[],plan:{people:[],reasons:"",signals:"",steps:""},profile:null,growth:{done:{},grat:{}}};
+function clone(o){return JSON.parse(JSON.stringify(o));}
+var storageOK=true;
+function load(){ try{ var t=localStorage.getItem(KEY); if(t){ var o=JSON.parse(t), b=clone(EMPTY); Object.keys(o).forEach(function(k){b[k]=o[k];}); if(!b.growth) b.growth={done:{},grat:{}}; if(!b.growth.grat) b.growth.grat={}; if(!b.growth.done) b.growth.done={}; return b; } }catch(e){ storageOK=false; } return clone(EMPTY); }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); storageOK=true; }catch(e){ storageOK=false; } }
+var S=load();
+var unlocked=false;
+
+/* ===================== Utilidades ===================== */
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
+function pad(n){return (n<10?"0":"")+n;}
+function iso(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());}
+function today(){return iso(new Date());}
+function parseD(s){var p=s.split("-");return new Date(+p[0],+p[1]-1,+p[2]);}
+function diffDays(a,b){return Math.round((parseD(b)-parseD(a))/86400000);}
+function addDays(s,n){var d=parseD(s);d.setDate(d.getDate()+n);return iso(d);}
+var MESES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+var DIAS=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+function fmt(s){var d=parseD(s);return d.getDate()+" "+MESES[d.getMonth()];}
+function $(id){return document.getElementById(id);}
+function top0(){try{window.scrollTo(0,0);}catch(e){}}
+function hash(s){var x=5381;s="raiz|"+s;for(var i=0;i<s.length;i++)x=((x<<5)+x+s.charCodeAt(i))|0;return String(x);}
+function isRec(){return S.user&&S.user.type==="rec";}
+function spiritual(){return !S.user||S.user.spiritual!==false;}
+function copyText(t,out){ try{ navigator.clipboard.writeText(t).then(function(){out.textContent="Copiado.";},function(){out.textContent="Mantén presionado el texto para copiarlo.";}); }catch(e){ out.textContent="Mantén presionado el texto para copiarlo."; } }
+
+/* ===================== Contenido ===================== */
+var VERSES=[
+ {r:"Mateo 6:34",t:"Así que, no os afanéis por el día de mañana, porque el día de mañana traerá su afán. Basta a cada día su propio mal.",f:"Solo por hoy. No tienes que resolver toda tu vida, solo este día.",c:"Escribe una sola cosa que harás hoy por tu bienestar y cúmplela.",m:"ansiedad"},
+ {r:"1 Corintios 10:13",t:"No os ha sobrevenido ninguna tentación que no sea humana; pero fiel es Dios, que no os dejará ser tentados más de lo que podéis resistir, sino que dará también juntamente con la tentación la salida, para que podáis soportar.",f:"Toda tentación trae una salida. Búscala antes de que crezca.",c:"Define tu salida de hoy: a quién llamas y a dónde vas si llega el antojo.",m:"antojo"},
+ {r:"Filipenses 4:13",t:"Todo lo puedo en Cristo que me fortalece.",f:"No estás peleando solo. La fuerza que te falta también te puede llegar.",c:"Haz hoy algo difícil que has estado evitando.",m:"antojo"},
+ {r:"Miqueas 7:8",t:"Aunque caí, me levantaré; aunque more en tinieblas, Jehová será mi luz.",f:"Caer no es el final. Levantarse es parte del camino.",c:"Perdónate por un error del pasado y escribe qué aprendiste.",m:"recaida"},
+ {r:"2 Corintios 5:17",t:"De modo que si alguno está en Cristo, nueva criatura es; las cosas viejas pasaron; he aquí todas son hechas nuevas.",f:"Tu pasado explica de dónde vienes, no decide a dónde vas.",c:"Deja hoy algo viejo: borra un contacto, una app o un camino que te lleva al consumo.",m:"recaida"},
+ {r:"Lamentaciones 3:22-23",t:"Por la misericordia de Jehová no hemos sido consumidos, porque nunca decayeron sus misericordias. Nuevas son cada mañana; grande es tu fidelidad.",f:"Cada mañana es una nueva oportunidad, sin importar cómo terminó ayer.",c:"Empieza el día dando gracias por 3 cosas.",m:"recaida"},
+ {r:"Salmos 34:18",t:"Cercano está Jehová a los quebrantados de corazón; y salva a los contritos de espíritu.",f:"El dolor no te aleja de la ayuda. Muchas veces es donde más cerca está.",c:"Cuéntale a alguien de confianza cómo te sientes de verdad.",m:"soledad"},
+ {r:"Mateo 11:28",t:"Venid a mí todos los que estáis trabajados y cargados, y yo os haré descansar.",f:"Descansar también es parte de recuperarse.",c:"Toma 10 minutos de descanso sin pantallas: respira, ora o camina.",m:"ansiedad"},
+ {r:"Isaías 41:10",t:"No temas, porque yo estoy contigo; no desmayes, porque yo soy tu Dios que te esfuerzo; siempre te ayudaré, siempre te sustentaré con la diestra de mi justicia.",f:"El miedo no se va del todo, pero no tiene que decidir por ti.",c:"Enfrenta un pequeño miedo hoy: una llamada, una conversación o un trámite.",m:"miedo"},
+ {r:"Josué 1:9",t:"Mira que te mando que te esfuerces y seas valiente; no temas ni desmayes, porque Jehová tu Dios estará contigo en dondequiera que vayas.",f:"Ser valiente también es decir “no” cuando todos dicen “sí”.",c:"Di que no a una invitación que no te conviene.",m:"miedo"},
+ {r:"Salmos 23:1",t:"Jehová es mi pastor; nada me faltará.",f:"El vacío no se llena con cosas. Pregúntate qué necesitas de verdad.",c:"Antes de comprar o buscar algo, pregúntate: ¿lo necesito o quiero llenar un vacío?",m:"ansiedad"},
+ {r:"Proverbios 3:5-6",t:"Fíate de Jehová de todo tu corazón, y no te apoyes en tu propia prudencia. Reconócelo en todos tus caminos, y él enderezará tus veredas.",f:"Pedir guía no es debilidad. Nadie se recupera solo.",c:"Pide un consejo a alguien con más experiencia que tú.",m:"crecer"},
+ {r:"Romanos 12:2",t:"No os conforméis a este siglo, sino transformaos por medio de la renovación de vuestro entendimiento.",f:"Lo que alimentas en tu mente es lo que crece.",c:"Cambia 30 minutos de redes por leer, aprender o hacer ejercicio.",m:"crecer"},
+ {r:"Gálatas 5:22-23",t:"Mas el fruto del Espíritu es amor, gozo, paz, paciencia, benignidad, bondad, fe, mansedumbre, templanza; contra tales cosas no hay ley.",f:"La recuperación se nota en cómo tratas a los demás.",c:"Practica la paciencia: hoy no le levantes la voz a nadie.",m:"crecer"},
+ {r:"Efesios 4:32",t:"Antes sed benignos unos con otros, misericordiosos, perdonándoos unos a otros, como Dios también os perdonó a vosotros en Cristo.",f:"Perdonar te libera a ti primero.",c:"Pide perdón o perdona a alguien, aunque sea con un mensaje.",m:"crecer"},
+ {r:"Santiago 1:19",t:"Por esto, mis amados hermanos, todo hombre sea pronto para oír, tardo para hablar, tardo para airarse.",f:"Escuchar bien evita muchas peleas y muchas recaídas.",c:"En tu próxima conversación, escucha sin interrumpir.",m:"crecer"},
+ {r:"Proverbios 4:23",t:"Sobre toda cosa guardada, guarda tu corazón; porque de él mana la vida.",f:"Cuidarte también es alejarte de lo que te hace daño.",c:"Aléjate hoy de un lugar o una persona que te pone en riesgo.",m:"antojo"},
+ {r:"1 Pedro 5:7",t:"Echando toda vuestra ansiedad sobre él, porque él tiene cuidado de vosotros.",f:"No tienes que cargar todo tú solo.",c:"Escribe tu preocupación más grande y entrégala en oración o en silencio.",m:"ansiedad"},
+ {r:"Salmos 46:1",t:"Dios es nuestro amparo y fortaleza, nuestro pronto auxilio en las tribulaciones.",f:"En el peor momento también hay refugio.",c:"Ayuda a alguien hoy sin esperar nada a cambio.",m:"soledad"},
+ {r:"Jeremías 29:11",t:"Porque yo sé los pensamientos que tengo acerca de vosotros, dice Jehová, pensamientos de paz, y no de mal, para daros el fin que esperáis.",f:"Tu historia todavía se está escribiendo.",c:"Escribe una meta para tu vida dentro de un año.",m:"crecer"},
+ {r:"Eclesiastés 4:9-10",t:"Mejores son dos que uno; porque tienen mejor paga de su trabajo. Porque si cayeren, el uno levantará a su compañero; pero ¡ay del solo! que cuando cayere, no habrá segundo que lo levante.",f:"Busca a alguien que te levante y sé tú quien levante a otro.",c:"Ve a una reunión de grupo o llama a tu compañero de recuperación.",m:"soledad"}
+];
+var MOMENTS=[["antojo","Cuando tengo un antojo"],["recaida","Cuando caí"],["soledad","Cuando me siento solo"],["ansiedad","Cuando tengo ansiedad"],["miedo","Cuando tengo miedo"],["crecer","Para ser mejor persona"]];
+function verseToday(){ return VERSES[((diffDays("2026-01-01",today())%VERSES.length)+VERSES.length)%VERSES.length]; }
+var TRIGS=["Estrés","Soledad","Aburrimiento","Discusión","Amigos o fiesta","Dinero o pago","Recuerdo doloroso","Cansancio","Lugar de consumo","Vergüenza o culpa","Redes o pantallas","Otro"];
+var MILES=[1,3,7,14,30,60,90,180,365,730];
+var CRAVE={
+  I:{name:"Intensidad",desc:"Necesito sentir algo fuerte",icon:"flame",acts:["Haz 10 minutos de ejercicio intenso: flexiones, sentadillas y correr en el sitio, hasta sudar.","Sal a caminar rápido, trotar o andar en bici, sin llevar dinero.","Pon música fuerte y baila o canta a todo pulmón.","Haz un reto: ¿cuántas flexiones haces en 1 minuto? Anota tu marca."]},
+  E:{name:"Escape",desc:"Quiero apagar la cabeza",icon:"wind",acts:["Escribe sin parar 5 minutos todo lo que tienes en la cabeza.","Cuenta hacia atrás de 100 restando 7 (100, 93, 86…). Si te equivocas, empieza de nuevo.","Haz algo con las manos: dibuja, arma algo, cocina o toca un instrumento.","Lávate la cara, cambia de cuarto o sal al aire libre. Cambiar de lugar corta el ciclo."]},
+  C:{name:"Conexión",desc:"Me siento solo",icon:"users",acts:["Llama o escribe a una persona de tu plan. Puedes decir solo: “Tengo un mal momento, ¿hablamos 10 minutos?”","Ve a un lugar con gente sana: parque, cancha, iglesia o grupo de apoyo.","Escribe en tu grupo de recuperación o a tu padrino o madrina.","Ayuda a alguien: un mensaje, un favor, una visita. Dar también conecta."]},
+  D:{name:"Calma",desc:"Me duele algo por dentro",icon:"heart",acts:["Respiración 4-6: inhala 4 segundos y exhala 6, con la guía de abajo, durante 5 minutos.","Anclaje 5-4-3-2-1: nombra 5 cosas que ves, 4 que tocas, 3 que oyes, 2 que hueles y 1 que saboreas.","Date una ducha tibia y toma algo caliente sin cafeína.","Si el dolor es muy fuerte, llama al 171, opción 6. No tienes que aguantarlo solo."]}
+};
+var TYPES=[["rec","En recuperación","sprout"],["fam","Familiar o acompañante","handheart"],["crecer","Quiero crecer como persona","gradcap"],["otro","Otro","dots"]];
+
+/* ===================== Navegación ===================== */
+var TABS=[["inicio","Inicio","home"],["antojo","Antojo","flame"],["crecer","Crecer","sprout"],["historial","Historial","chart"],["perfil","Perfil","user"]];
+var view=$("view"), tabbar=$("tabbar"), sos=$("sosBtn"), app=$("app");
+var current="inicio";
+function chrome(on){ tabbar.classList.toggle("hidden",!on); sos.classList.toggle("hidden",!on); app.classList.toggle("notabs",!on); }
+function renderTabs(){
+  tabbar.innerHTML=TABS.map(function(t){ var lbl=t[0]==="antojo"&&!isRec()?"Calma":t[1]; return '<button class="tab" type="button" data-tab="'+t[0]+'"'+(t[0]===current?' aria-current="page"':'')+'>'+ic(t[2])+lbl+'</button>'; }).join("");
+  tabbar.querySelectorAll("[data-tab]").forEach(function(b){ b.addEventListener("click",function(){ go(b.getAttribute("data-tab")); }); });
+}
+function go(t){ stopTimers(); current=t; chrome(true); renderTabs(); R[t](); top0(); }
+function screen(fn){ stopTimers(); chrome(false); fn(); top0(); }
+var R={};
+function header(opts){
+  opts=opts||{};
+  var left=opts.back?'<button class="circle" type="button" id="hBack" aria-label="Volver">'+ic("back")+'</button>':'<span class="spacer"></span>';
+  var notes=notifications().length;
+  var right=opts.bell===false?'<span class="spacer"></span>':(opts.right||'<button class="circle" type="button" id="hBell" aria-label="Recordatorios'+(notes?' ('+notes+' nuevos)':'')+'">'+ic("bell")+(notes?'<span class="dot"></span>':'')+'</button>');
+  return '<div class="top">'+left+'<div class="brand">'+logo(46)+wordmark(28)+'</div>'+right+'</div>';
+}
+function bindHeader(backFn){
+  if($("hBack")) $("hBack").addEventListener("click",backFn);
+  if($("hBell")) $("hBell").addEventListener("click",showNotes);
+}
+
+/* ===================== Bienvenida / cuenta ===================== */
+function welcome(){
+  screen(function(){
+    view.innerHTML='<div class="center" style="padding-top:12px">'+logo(150)+'<div style="margin-top:-4px">'+wordmark(56)+'</div></div>'+
+      '<div style="margin:6px -6px 4px">'+heroArt()+'</div>'+
+      '<p class="center" style="font-size:19px;color:var(--ink);margin:0 10px 26px">Acompañamiento para tu recuperación y tu crecimiento como persona, un día a la vez</p>'+
+      '<div class="stack"><button class="btn main" id="wLogin" type="button">'+ic("user")+'Iniciar sesión</button>'+
+      '<button class="btn outline" id="wSign" type="button">'+ic("userplus")+'Crear cuenta</button></div>'+
+      '<button class="link" id="wInfo" type="button">'+ic("info")+'Información de la aplicación'+ic("chev")+'</button>';
+    $("wLogin").addEventListener("click",login);
+    $("wSign").addEventListener("click",function(){ if(S.user){ login(); } else signup(); });
+    $("wInfo").addEventListener("click",function(){ about(welcome); });
+  });
+}
+function about(back){
+  screen(function(){
+    view.innerHTML=header({back:true,bell:false})+'<h1>Sobre Raíz</h1>'+
+    '<p>Raíz nace de una experiencia real de recuperación. Te ayuda a contar tus días, salir de un antojo, registrar cómo te sientes, crecer en lo espiritual y saber qué tipo de tratamiento necesitas.</p>'+
+    '<div class="card tint"><h3>Tu privacidad</h3><ul class="plain"><li>No pedimos tu nombre real, correo ni teléfono.</li><li>Todo se guarda solo en este celular. Nadie más lo ve.</li><li>Puedes proteger la app con un PIN y borrar todo cuando quieras.</li></ul></div>'+
+    '<div class="card"><h3>Importante</h3><p class="small">Raíz acompaña, pero no reemplaza a un psicólogo, médico o centro de tratamiento. En una emergencia llama al <b>911</b> o al <b>171, opción 6</b>.</p></div>'+
+    '<p class="small muted">Textos bíblicos: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988. Utilizado con permiso.</p>';
+    bindHeader(back);
+  });
+}
+var draft={};
+function signup(){
+  draft={type:"rec",spiritual:true};
+  screen(function(){
+    view.innerHTML=header({back:true,bell:false})+
+    '<div style="display:grid;grid-template-columns:1fr 130px;gap:8px;align-items:center;margin-bottom:10px"><div><h1>Crear cuenta</h1><p class="muted" style="margin:0">Completa la información para crear tu perfil y personalizar tu experiencia.</p></div><div>'+plantArt(30)+'</div></div>'+
+    '<div class="card" style="padding:22px 18px">'+
+    '<div class="field"><span class="icircle">'+ic("user")+'</span><div><label for="fAlias">Apodo</label><p class="hint">No uses tu nombre real. Así cuidamos tu privacidad.</p><input type="text" id="fAlias" maxlength="30" placeholder="Ej. Guerrero, Luz, M."></div></div>'+
+    '<div class="field"><span class="icircle">'+ic("cal")+'</span><div><label for="fAge">Edad</label><div class="suffix"><input type="number" id="fAge" inputmode="numeric" min="10" max="99" placeholder="Ej. 22"><span>años</span></div></div></div>'+
+    '<div class="field"><span class="icircle">'+ic("users")+'</span><div><span class="flabel">¿Qué te trae a Raíz?</span><p class="hint">Selecciona la opción que mejor te describa.</p><div class="radios" id="fType">'+
+      TYPES.map(function(t){return '<button type="button" class="radio" data-type="'+t[0]+'" aria-pressed="'+(t[0]==="rec")+'"><span class="rdot"></span>'+ic(t[2])+t[1]+'</button>';}).join("")+'</div></div></div>'+
+    '<div class="field" id="startWrap"><span class="icircle">'+ic("clock")+'</span><div><label for="fStart">¿Desde qué día no consumes?</label><p class="hint">Si consumiste hoy o empiezas ahora, deja la fecha de hoy.</p><input type="date" id="fStart" value="'+(S.start||today())+'" max="'+today()+'"></div></div>'+
+    '<div class="field"><span class="icircle">'+ic("lock")+'</span><div><label for="fPin">PIN de 4 números (opcional)</label><p class="hint">Protege tu información si alguien más usa tu celular.</p><input type="password" id="fPin" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="new-password"><input type="password" id="fPin2" inputmode="numeric" maxlength="4" placeholder="Repite el PIN" style="margin-top:8px" autocomplete="new-password"></div></div>'+
+    '<div class="field" style="margin-bottom:0"><span class="icircle">'+ic("book")+'</span><div><div class="toggle"><span class="flabel" style="margin:6px 0">Mostrar versículos y contenido espiritual</span><button type="button" class="switch" id="fSpi" role="switch" aria-checked="true" aria-label="Mostrar contenido espiritual"></button></div><p class="hint" style="margin-top:4px">Puedes cambiarlo cuando quieras en tu perfil.</p></div></div>'+
+    '</div><p class="err" id="fErr"></p>'+
+    '<button class="btn main" id="fSave" type="button">'+ic("save")+'Guardar información</button>';
+    bindHeader(welcome);
+    view.querySelectorAll("[data-type]").forEach(function(b){ b.addEventListener("click",function(){ draft.type=b.getAttribute("data-type"); view.querySelectorAll("[data-type]").forEach(function(x){x.setAttribute("aria-pressed",String(x===b));}); $("startWrap").classList.toggle("hidden",draft.type!=="rec"); }); });
+    $("fSpi").addEventListener("click",function(){ draft.spiritual=!draft.spiritual; this.setAttribute("aria-checked",String(draft.spiritual)); });
+    $("fSave").addEventListener("click",function(){
+      var alias=$("fAlias").value.trim(), age=parseInt($("fAge").value,10), p1=$("fPin").value, p2=$("fPin2").value, st=$("fStart").value, e=$("fErr");
+      if(!alias){ e.textContent="Escribe un apodo para continuar."; return; }
+      if(!age||age<10||age>99){ e.textContent="Escribe tu edad en números."; return; }
+      if(age<18){ return minorScreen(); }
+      if(p1||p2){ if(!/^\d{4}$/.test(p1)){ e.textContent="El PIN debe tener 4 números."; return; } if(p1!==p2){ e.textContent="Los dos PIN no coinciden."; return; } }
+      if(draft.type==="rec" && (!st||st>today())){ e.textContent="Elige una fecha de hoy o anterior."; return; }
+      S.user={alias:alias.slice(0,30),age:age,type:draft.type,pin:p1?hash(p1):null,spiritual:draft.spiritual,created:today()};
+      if(draft.type==="rec"){ if(!S.start||S.start!==st){ S.start=st; S.cleanSince=st; } }
+      else { if(!S.start){ S.start=today(); S.cleanSince=today(); } }
+      save(); unlocked=true;
+      if(!storageOK){ e.textContent="Este navegador no guarda datos. Ábrelo en Chrome o Safari normal, no en modo incógnito."; return; }
+      go("inicio");
+    });
+  });
+}
+function minorScreen(){
+  screen(function(){
+    view.innerHTML=header({back:true,bell:false})+'<h1>Gracias por buscar ayuda</h1><p>Raíz está hecha para adultos. Lo que vives importa mucho, y mereces que alguien te acompañe en persona.</p>'+
+    '<div class="card tint"><ul class="plain"><li>Habla con un adulto de confianza: un familiar, un profesor o el psicólogo de tu colegio (DECE).</li><li>Llama gratis al <b>171, opción 6</b> para hablar con un psicólogo.</li><li>Si estás en peligro, llama al <b>911</b>.</li></ul></div>';
+    bindHeader(welcome);
+  });
+}
+function login(){
+  screen(function(){
+    if(!S.user){
+      view.innerHTML=header({back:true,bell:false})+'<h1>Iniciar sesión</h1><div class="card tint"><p>En este celular todavía no hay una cuenta de Raíz.</p><p class="small muted" style="margin:0">Tu información vive solo en el celular donde la creaste. Si cambiaste de celular, recupérala con tu código de respaldo.</p></div>'+
+      '<div class="stack"><button class="btn main" id="lNew" type="button">'+ic("userplus")+'Crear cuenta</button><button class="btn outline" id="lRest" type="button">'+ic("key")+'Recuperar con código</button></div>';
+      bindHeader(welcome); $("lNew").addEventListener("click",signup); $("lRest").addEventListener("click",function(){ restoreScreen(login); });
+      return;
+    }
+    if(!S.user.pin){ unlocked=true; go("inicio"); return; }
+    view.innerHTML=header({back:true,bell:false})+'<div class="center"><div class="avatar" style="margin:6px auto 12px">'+esc(S.user.alias.charAt(0).toUpperCase())+'</div><h1>Hola de nuevo, '+esc(S.user.alias)+'</h1><p class="muted">Escribe tu PIN para entrar.</p></div>'+
+      '<input type="password" id="lPin" inputmode="numeric" maxlength="4" placeholder="••••" aria-label="PIN" style="text-align:center;font-size:28px;letter-spacing:.4em;max-width:220px;display:block;margin:0 auto" autocomplete="current-password">'+
+      '<p class="err center" id="lErr"></p><button class="btn main" id="lGo" type="button" style="margin-top:8px">'+ic("lock")+'Entrar</button>'+
+      '<button class="link" id="lForgot" type="button">Olvidé mi PIN</button><div id="forgot"></div>';
+    bindHeader(welcome);
+    function tryIn(){ if(hash($("lPin").value)===S.user.pin){ unlocked=true; go("inicio"); } else { $("lErr").textContent="PIN incorrecto. Intenta de nuevo."; $("lPin").value=""; } }
+    $("lGo").addEventListener("click",tryIn);
+    $("lPin").addEventListener("keydown",function(e){ if(e.key==="Enter") tryIn(); });
+    $("lForgot").addEventListener("click",function(){
+      $("forgot").innerHTML='<div class="card orange" style="margin-top:8px"><p>Por tu privacidad, el PIN no se puede recuperar. Puedes restaurar tu información con tu código de respaldo, o empezar de cero en este celular.</p><div class="stack"><button class="btn outline small" id="fR" type="button">Usar código de respaldo</button><button class="btn danger small" id="fW" type="button">Borrar todo y empezar de nuevo</button></div></div>';
+      $("fR").addEventListener("click",function(){ restoreScreen(login); });
+      $("fW").addEventListener("click",function(){ try{localStorage.removeItem(KEY);}catch(e){} S=clone(EMPTY); welcome(); });
+    });
+  });
+}
+
+/* ===================== Cálculos ===================== */
+function usedDates(){ var m={}; S.logs.forEach(function(l){ if(l.used) m[l.date]=1; }); return Object.keys(m); }
+function stats(){
+  var t=today(), cur=S.cleanSince?Math.max(0,diffDays(S.cleanSince,t)):0;
+  var ud=usedDates().filter(function(d){return S.start&&d>=S.start;});
+  var total=S.start?Math.max(0,diffDays(S.start,t)+1-ud.length):0;
+  var best=0;
+  if(S.start){ var used={}; ud.forEach(function(d){used[d]=1;}); var run=0,d=S.start,g=0; while(d<t&&g<5000){ if(used[d]) run=0; else { run++; if(run>best) best=run; } d=addDays(d,1); g++; } }
+  if(cur>best) best=cur;
+  return {cur:cur,total:total,best:best};
+}
+function todayLog(){ var t=today(); for(var i=S.logs.length-1;i>=0;i--) if(S.logs[i].date===t) return S.logs[i]; return null; }
+function lastDays(n){ var out=[]; for(var i=n-1;i>=0;i--) out.push(addDays(today(),-i)); return out; }
+function logMap(){ var m={}; S.logs.forEach(function(l){m[l.date]=l;}); return m; }
+function notifications(){
+  if(!S.user) return [];
+  var n=[], st=stats();
+  if(!todayLog()) n.push(["orange","Aún no haces tu registro de hoy","Toma 1 minuto y te ayuda a ver tus patrones.","diario"]);
+  if(!S.growth.done[today()]) n.push(["teal","Tu reto de hoy te espera",verseToday().c,"crecer"]);
+  if(isRec()&&MILES.indexOf(st.cur)>=0) n.push(["green","¡Llegaste a "+st.cur+(st.cur===1?" día":" días")+"!","Cada día cuenta. Celébralo con alguien que te apoya.","inicio"]);
+  if(!S.plan.people.filter(function(p){return p.name||p.phone;}).length) n.push(["orange","Completa tu plan de crisis","Agrega al menos una persona a quien llamar en un mal momento.","plan"]);
+  if(S.profile&&diffDays(S.profile.date,today())>=28) n.push(["teal","Repite tu test RAÍZ","Han pasado "+diffDays(S.profile.date,today())+" días. Mira cuánto has avanzado.","test"]);
+  if(!S.profile&&isRec()) n.push(["teal","Descubre tu perfil","Haz el test RAÍZ para saber qué tipo de tratamiento te conviene.","test"]);
+  return n;
+}
+function showNotes(){
+  var n=notifications();
+  screen(function(){
+    view.innerHTML=header({back:true,bell:false})+'<h1>Recordatorios</h1>'+(n.length?n.map(function(x,i){
+      return '<div class="card '+(x[0]==="orange"?"orange":"tint")+'" style="display:flex;gap:14px;align-items:flex-start"><span class="'+(x[0]==="orange"?"warnico":"icircle sm")+'">'+(x[0]==="orange"?'<svg viewBox="0 0 24 24" style="width:34px;height:34px">'+I.warn+'</svg>':ic(x[0]==="green"?"check":"bell"))+'</span><div style="flex:1"><h3 style="margin:0 0 4px">'+esc(x[1])+'</h3><p class="small" style="margin:0 0 10px">'+esc(x[2])+'</p><button class="btn soft small" type="button" data-go="'+x[3]+'">Ir ahora</button></div></div>';
+    }).join(""):'<div class="card tint center"><div class="icircle lg" style="margin:0 auto 10px">'+ic("check")+'</div><h3>Todo al día</h3><p class="muted" style="margin:0">No tienes recordatorios pendientes.</p></div>');
+    bindHeader(function(){ go(current); });
+    view.querySelectorAll("[data-go]").forEach(function(b){ b.addEventListener("click",function(){ var g=b.getAttribute("data-go"); if(g==="diario") logScreen(); else if(g==="plan") planScreen(); else if(g==="test") testStart(); else go(g); }); });
+  });
+}
+
+/* ===================== INICIO ===================== */
+R.inicio=function(){
+  var st=stats(), tl=todayLog(), v=verseToday(), u=S.user;
+  var next=MILES.filter(function(m){return m>st.cur;})[0]||st.cur+365;
+  var h=header();
+  h+='<h1 style="font-size:30px">Hola, '+esc(u.alias)+'</h1><p class="muted" style="margin-top:-4px">'+(isRec()?'Un día a la vez. Hoy también cuenta.':'Un paso a la vez. Hoy también cuenta.')+'</p>';
+  if(!storageOK) h+='<div class="card orange small">Este navegador no está guardando datos. Ábrelo en Chrome o Safari normal, no en modo incógnito.</div>';
+  h+='<div class="card dayscard"><span class="icircle">'+ic("clock")+'</span><div><div class="lbl">'+(isRec()?'Días sin consumir':'Días en tu camino')+'</div><div class="num">'+st.cur+'<small>'+(st.cur===1?'día':'días')+'</small></div><div class="small muted">Próxima meta: '+next+' días</div></div><div class="art">'+plantArt(st.cur)+'</div></div>';
+  var good=tl&&!tl.used&&tl.mood>=3;
+  var title=!tl?'Hoy te esperamos':tl.used?'Hoy fue difícil':good?'Vas muy bien hoy':'Hoy cuesta un poco';
+  var sub=!tl?'Haz tu registro de hoy y cuéntanos cómo estás.':tl.used?'Gracias por ser honesto. Mañana es un nuevo comienzo.':good?'Tu día se encuentra dentro de un camino saludable.':'Está bien no estar bien. Usa tus herramientas y pide apoyo.';
+  h+='<div class="card tint status"><div class="txt"><h2><span class="gdot'+(good?'':' o')+'"></span>'+title+'</h2><p class="muted" style="margin:0">'+sub+'</p></div><span class="shield">'+ic(good?"shield":"heart")+'</span></div>';
+  if(!tl) h+='<button class="btn outline" id="doLog" type="button" style="margin:-4px 0 16px">'+ic("save")+'Hacer mi registro de hoy</button>';
+  var moodPct=tl?tl.mood/5*100:0, cravePct=tl?(10-tl.crave)/10*100:0, racha=Math.min(100,Math.round(st.cur/next*100));
+  h+='<div class="section-t">Indicadores</div><div class="ind">'+
+    indRow("smile","Ánimo",moodPct,tl?["","Muy mal","Mal","Regular","Bien","Muy bien"][tl.mood]:'Sin registro hoy',tl?(tl.mood>=3?"ok":"o"):"none")+
+    indRow(isRec()?"flame":"wind",isRec()?"Control del antojo":"Calma",cravePct,tl?(tl.crave<=3?'Antojo bajo hoy':tl.crave<=6?'Antojo moderado: usa tus herramientas':'Antojo fuerte: no estás solo'):'Sin registro hoy',tl?(tl.crave<=6?"ok":"o"):"none")+
+    indRow("sprout","Tu racha",racha,st.cur+' de '+next+' días hacia tu próxima meta',st.cur>0?"ok":"none")+'</div>';
+  if(spiritual()) h+='<div class="card verse"><div style="display:flex;gap:12px;align-items:center;margin-bottom:10px"><span class="icircle sm">'+ic("book")+'</span><h3 style="margin:0">Versículo del día</h3></div><q>'+esc(v.t)+'</q><cite>'+esc(v.r)+'</cite></div>';
+  else h+='<div class="card"><div style="display:flex;gap:12px;align-items:center;margin-bottom:10px"><span class="icircle sm">'+ic("bulb")+'</span><h3 style="margin:0">Para hoy</h3></div><p style="font:500 19px var(--display);color:var(--navy);margin:0">'+esc(v.f)+'</p></div>';
+  h+='<button class="btn main" id="goCrave" type="button">'+ic(isRec()?"flame":"wind")+(isRec()?'Tengo un antojo ahora':'Necesito calma ahora')+'</button>';
+  if(!S.profile&&isRec()) h+='<button class="link" id="goTest" type="button">'+ic("info")+'Descubre qué tipo de tratamiento necesitas'+ic("chev")+'</button>';
+  view.innerHTML=h; bindHeader();
+  $("goCrave").addEventListener("click",function(){go("antojo");});
+  if($("doLog")) $("doLog").addEventListener("click",logScreen);
+  if($("goTest")) $("goTest").addEventListener("click",testStart);
+};
+function indRow(icon,title,pct,sub,state){
+  return '<div class="irow"><span class="icircle">'+ic(icon)+'</span><div><b>'+title+'</b><div class="bar'+(state==="o"?" o":"")+'"><i style="width:'+Math.round(pct)+'%"></i></div><small>'+esc(sub)+'</small></div><span class="check'+(state==="o"?" o":state==="none"?" g":"")+'">'+(state==="o"?'<b style="font:700 18px var(--display)">!</b>':ic("check"))+'</span></div>';
+}
+
+/* ===================== ANTOJO / CALMA ===================== */
+var timerId=null, breathId=null;
+function stopTimers(){ if(timerId){clearInterval(timerId);timerId=null;} if(breathId){clearTimeout(breathId);breathId=null;} }
+R.antojo=function(){
+  var rec=isRec();
+  var h=header()+'<div class="card orange reminder"><span class="warnico"><svg viewBox="0 0 24 24">'+I.warn+'</svg></span><div><h2>'+(rec?'Este antojo va a pasar':'Este momento va a pasar')+'</h2><p style="margin:0">'+(rec?'Un antojo sube, llega a su punto más alto y baja, casi siempre en 15 a 30 minutos. Solo tienes que cruzar los próximos 15.':'Las emociones fuertes suben, llegan a su punto más alto y bajan. Solo tienes que cruzar los próximos 15 minutos.')+'</p></div></div>'+
+    '<div style="margin:0 -6px 8px">'+waveArt()+'</div>'+
+    '<div class="card"><label class="flabel" for="cb">¿Qué tan fuerte es ahora? <span class="rval" id="cbv">5</span>/10</label><input type="range" id="cb" min="0" max="10" value="5"></div>'+
+    '<div class="section-t">¿Qué estás buscando en este momento?</div><div class="funcgrid">';
+  ["I","E","C","D"].forEach(function(k){ h+='<button class="func" type="button" data-f="'+k+'"><span class="icircle sm">'+ic(CRAVE[k].icon)+'</span><b>'+CRAVE[k].name+'</b>'+CRAVE[k].desc+'</button>'; });
+  h+='</div>';
+  if(spiritual()){ var v=VERSES[1]; h+='<div class="card verse" style="margin-top:16px"><q>'+esc(v.t)+'</q><cite>'+esc(v.r)+'</cite></div>'; }
+  view.innerHTML=h; bindHeader();
+  $("cb").addEventListener("input",function(){ $("cbv").textContent=this.value; });
+  view.querySelectorAll("[data-f]").forEach(function(b){ b.addEventListener("click",function(){ cravingSession(b.getAttribute("data-f"),+$("cb").value); }); });
+};
+function peopleHTML(){
+  var p=S.plan.people.filter(function(x){return x.name||x.phone;});
+  if(!p.length) return '';
+  return '<div class="card tint"><h3>Tu gente</h3>'+p.map(function(x){return '<div style="display:flex;align-items:center;gap:12px;margin-top:8px"><span class="icircle sm">'+ic("phone")+'</span><div><b style="color:var(--navy)">'+esc(x.name)+'</b><br>'+(x.phone?'<a href="tel:'+esc(x.phone.replace(/[^0-9+]/g,""))+'" style="color:var(--teal);font-weight:700">'+esc(x.phone)+'</a>':'')+'</div></div>';}).join("")+'</div>';
+}
+function cravingSession(f,before){
+  var C=CRAVE[f];
+  var h=header()+'<div class="card"><div style="display:flex;gap:14px;align-items:center;margin-bottom:6px"><span class="icircle" style="background:#e5f6ea;color:var(--green)">'+ic("bulb")+'</span><h2 style="margin:0">Recomendaciones</h2></div><p class="small muted">Elige una y hazla ahora mismo.</p><ul class="list">'+
+    C.acts.map(function(a){return '<li><span class="check">'+ic("check")+'</span><span>'+esc(a)+'</span></li>';}).join("")+'</ul></div>';
+  if(f==="C"||f==="D") h+=peopleHTML()||'<p class="small muted">Agrega personas de apoyo en Perfil → Mi plan de crisis para tenerlas aquí.</p>';
+  if(f==="D"||f==="E") h+='<div class="card center"><h3>Respiración guiada</h3><div class="breath" id="breath">Inhala</div><p class="small muted" style="margin:0">Inhala 4 segundos, exhala 6.</p></div>';
+  if(S.plan.reasons) h+='<div class="card tint"><h3>Por qué estoy haciendo esto</h3><p style="margin:0">'+esc(S.plan.reasons).replace(/\n/g,"<br>")+'</p></div>';
+  h+='<div class="card center"><p class="muted" style="margin:0">Quédate conmigo</p><div class="timer" id="tm">15:00</div></div>'+
+    '<div class="stack"><button class="btn main" id="cDone" type="button">'+ic("check")+'Ya bajó</button><button class="btn outline small" id="cBack" type="button">Ver otras opciones</button>'+(isRec()?'<button class="btn danger small" id="cUsed" type="button">Consumí</button>':'')+'</div>';
+  view.innerHTML=h; bindHeader(); top0();
+  var end=Date.now()+15*60000;
+  function tick(){ var el=$("tm"); if(!el){stopTimers();return;} var s=Math.max(0,Math.round((end-Date.now())/1000)); el.textContent=pad(Math.floor(s/60))+":"+pad(s%60); if(s===0){ clearInterval(timerId); timerId=null; el.textContent="¡Lo lograste!"; } }
+  tick(); timerId=setInterval(tick,1000);
+  var br=$("breath");
+  if(br){ var inhale=false; var loop=function(){ inhale=!inhale; br.style.transitionDuration=(inhale?4:6)+"s"; br.classList.toggle("in",inhale); br.textContent=inhale?"Inhala":"Exhala"; breathId=setTimeout(loop,inhale?4000:6000); }; loop(); }
+  $("cBack").addEventListener("click",function(){ stopTimers(); R.antojo(); top0(); });
+  $("cDone").addEventListener("click",function(){ stopTimers(); afterCraving(f,before,false); });
+  if($("cUsed")) $("cUsed").addEventListener("click",function(){ stopTimers(); afterCraving(f,before,true); });
+}
+function afterCraving(f,before,used){
+  if(used){
+    S.cravings.push({ts:Date.now(),date:today(),f:f,before:before,after:null,used:true}); S.cleanSince=today(); var tl=todayLog(); if(tl) tl.used=true; save();
+    var v=VERSES[3];
+    view.innerHTML=header()+'<h1>Gracias por ser honesto</h1><p>Una recaída no borra lo que has avanzado. Tus días limpios en total se mantienen. Hoy puedes volver a empezar.</p>'+
+      (spiritual()?'<div class="card verse tint"><q>'+esc(v.t)+'</q><cite>'+esc(v.r)+'</cite></div>':'')+
+      '<div class="card red"><h3>Cuídate ahora</h3><ul class="plain"><li>Si consumiste mucho o te sientes mal físicamente, busca atención médica o llama al 911.</li><li>Después de un tiempo sin consumir, tu cuerpo tolera menos: la misma cantidad de antes puede causar una sobredosis.</li></ul></div>'+
+      '<div class="card"><ul class="plain"><li>Cuéntaselo a una persona de tu plan o a tu psicólogo.</li><li>Escribe en tu registro qué pasó antes. Eso te prepara para la próxima vez.</li></ul></div>'+
+      '<div class="stack"><button class="btn main" id="toLog" type="button">'+ic("save")+'Escribir en mi registro</button><button class="btn outline small" id="hlp" type="button">Ver números de ayuda</button></div>';
+    bindHeader(); $("hlp").addEventListener("click",openCrisis); $("toLog").addEventListener("click",function(){ logScreen(true); });
+    return;
+  }
+  view.innerHTML=header()+'<div class="center"><div class="icircle lg" style="margin:6px auto 12px;background:#e5f6ea;color:var(--green)">'+ic("check")+'</div><h1>Lo superaste</h1><p>Cada vez que un antojo pasa sin consumir, tu cerebro aprende que puede hacerlo otra vez.</p></div>'+
+    '<div class="card"><label class="flabel" for="ca">¿Qué tan fuerte es ahora? <span class="rval" id="cav">'+Math.max(0,before-3)+'</span>/10</label><input type="range" id="ca" min="0" max="10" value="'+Math.max(0,before-3)+'"></div>'+
+    '<button class="btn main" id="saveC" type="button">'+ic("save")+'Guardar y volver</button>';
+  bindHeader();
+  $("ca").addEventListener("input",function(){ $("cav").textContent=this.value; });
+  $("saveC").addEventListener("click",function(){ S.cravings.push({ts:Date.now(),date:today(),f:f,before:before,after:+$("ca").value,used:false}); save(); go("inicio"); });
+}
+
+/* ===================== REGISTRO DIARIO ===================== */
+function logScreen(forceUsed){
+  forceUsed=forceUsed===true;
+  var tl=todayLog()||{mood:0,crave:3,used:false,trig:[],note:""};
+  var d={mood:tl.mood,used:forceUsed?true:!!tl.used,trig:tl.trig.slice()};
+  var faces=["😞","🙁","😐","🙂","😄"], names=["Muy mal","Mal","Regular","Bien","Muy bien"];
+  screen(function(){
+    var h=header({back:true})+'<h1>Registro de hoy</h1><p class="muted">'+fmt(today())+' · Toma 1 minuto. Solo tú lo ves.</p>'+
+    '<div class="card"><span class="flabel">¿Cómo te sientes?</span><div class="seg" id="moodG">'+names.map(function(n,i){return '<button type="button" data-mood="'+(i+1)+'" aria-pressed="'+(d.mood===i+1)+'"><span aria-hidden="true">'+faces[i]+'</span>'+n+'</button>';}).join("")+'</div></div>'+
+    '<div class="card"><label class="flabel" for="cr">'+(isRec()?'Antojo más fuerte del día':'Estrés o ansiedad más fuerte del día')+': <span class="rval" id="crv">'+tl.crave+'</span>/10</label><input type="range" id="cr" min="0" max="10" value="'+tl.crave+'"></div>'+
+    (isRec()?'<div class="card"><span class="flabel">¿Consumiste hoy?</span><div class="radios" style="grid-template-columns:1fr 1fr"><button type="button" class="radio" id="u0" aria-pressed="'+(!d.used)+'"><span class="rdot"></span>No</button><button type="button" class="radio" id="u1" aria-pressed="'+d.used+'"><span class="rdot"></span>Sí</button></div></div>':'')+
+    '<div class="card"><span class="flabel">¿Qué te movió hoy?</span><p class="hint">Puedes marcar varios.</p><div class="chips">'+TRIGS.map(function(t){return '<button type="button" class="chip" data-tr="'+esc(t)+'" aria-pressed="'+(d.trig.indexOf(t)>=0)+'">'+esc(t)+'</button>';}).join("")+'</div></div>'+
+    '<div class="card"><label class="flabel" for="nt">Nota</label><textarea id="nt" placeholder="Qué pasó, cómo lo manejé, algo bueno de hoy…">'+esc(tl.note)+'</textarea></div>'+
+    '<p class="err" id="lgErr"></p><button class="btn main" id="saveLog" type="button">'+ic("save")+'Guardar registro</button>';
+    view.innerHTML=h; bindHeader(function(){ go(current); });
+    view.querySelectorAll("[data-mood]").forEach(function(b){ b.addEventListener("click",function(){ d.mood=+b.getAttribute("data-mood"); view.querySelectorAll("[data-mood]").forEach(function(x){x.setAttribute("aria-pressed",String(x===b));}); }); });
+    $("cr").addEventListener("input",function(){ $("crv").textContent=this.value; });
+    if($("u0")){ $("u0").addEventListener("click",function(){ d.used=false; this.setAttribute("aria-pressed","true"); $("u1").setAttribute("aria-pressed","false"); }); $("u1").addEventListener("click",function(){ d.used=true; this.setAttribute("aria-pressed","true"); $("u0").setAttribute("aria-pressed","false"); }); }
+    view.querySelectorAll("[data-tr]").forEach(function(b){ b.addEventListener("click",function(){ var t=b.getAttribute("data-tr"),i=d.trig.indexOf(t); if(i>=0) d.trig.splice(i,1); else d.trig.push(t); b.setAttribute("aria-pressed",String(i<0)); }); });
+    $("saveLog").addEventListener("click",function(){
+      if(!d.mood){ $("lgErr").textContent="Elige cómo te sientes para guardar."; return; }
+      var t=today(), wasUsed=false;
+      S.logs=S.logs.filter(function(l){ if(l.date===t){ wasUsed=l.used; return false; } return true; });
+      var entry={date:t,mood:d.mood,crave:+$("cr").value,used:isRec()&&d.used,trig:d.trig,note:$("nt").value.slice(0,2000)};
+      S.logs.push(entry);
+      if(entry.used) S.cleanSince=t;
+      else if(wasUsed&&S.cleanSince===t){ var u=usedDates().filter(function(x){return x<t;}).sort(); S.cleanSince=u.length?u[u.length-1]:S.start; }
+      save(); go("inicio");
+    });
+  });
+}
+
+/* ===================== CRECER ===================== */
+var momentSel=null;
+R.crecer=function(){
+  var v=verseToday(), t=today(), done=!!S.growth.done[t], g=S.growth.grat[t]||["","",""];
+  var streak=0, d=t; if(!done) d=addDays(t,-1); while(S.growth.done[d]&&streak<3650){ streak++; d=addDays(d,-1); }
+  var h=header()+'<h1>Crecer</h1><p class="muted">Recuperarte también es convertirte en la persona que quieres ser.</p>';
+  if(spiritual()) h+='<div class="card verse tint"><div style="display:flex;gap:12px;align-items:center;margin-bottom:12px"><span class="icircle sm" style="background:#fff">'+ic("book")+'</span><h3 style="margin:0">Palabra de hoy</h3></div><q>'+esc(v.t)+'</q><cite>'+esc(v.r)+'</cite><p style="margin:12px 0 0">'+esc(v.f)+'</p></div>';
+  else h+='<div class="card tint"><h3>Para pensar hoy</h3><p style="font:500 19px var(--display);color:var(--navy);margin:0">'+esc(v.f)+'</p></div>';
+  h+='<div class="card"><div style="display:flex;gap:12px;align-items:center;margin-bottom:8px"><span class="icircle sm">'+ic("sprout")+'</span><h3 style="margin:0">Reto de hoy</h3></div><p style="font-weight:600;color:var(--navy)">'+esc(v.c)+'</p>'+
+     (done?'<div class="card tint" style="margin:0;padding:14px;display:flex;gap:10px;align-items:center"><span class="check">'+ic("check")+'</span><b style="color:var(--teal)">¡Reto cumplido!</b></div>':'<button class="btn main small" id="doneBtn" type="button">'+ic("check")+'Lo cumplí</button>')+
+     '<p class="small muted" style="margin:10px 0 0">Retos cumplidos seguidos: <b>'+streak+'</b> · en total: <b>'+Object.keys(S.growth.done).length+'</b></p></div>';
+  h+='<div class="card"><div style="display:flex;gap:12px;align-items:center;margin-bottom:8px"><span class="icircle sm">'+ic("heart")+'</span><h3 style="margin:0">3 cosas por las que doy gracias hoy</h3></div>'+
+     [0,1,2].map(function(i){return '<input type="text" maxlength="120" data-g="'+i+'" value="'+esc(g[i])+'" placeholder="'+["Ej. Desperté sin consumir","Ej. Hablé con mi mamá","Ej. Tengo salud para trabajar"][i]+'" style="margin-bottom:8px" aria-label="Gratitud '+(i+1)+'">';}).join("")+
+     '<button class="btn outline small" id="saveG" type="button">Guardar</button><p class="ok" id="gOk"></p></div>';
+  if(spiritual()){
+    h+='<div class="section-t">Una palabra para cada momento</div><div class="chips" id="moms">'+MOMENTS.map(function(m){return '<button type="button" class="chip" data-m="'+m[0]+'" aria-pressed="'+(momentSel===m[0])+'">'+m[1]+'</button>';}).join("")+'</div><div id="momOut" style="margin-top:14px"></div>';
+    h+='<p class="small muted" style="margin-top:18px">Textos bíblicos: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988. Utilizado con permiso.</p>';
+  }
+  view.innerHTML=h; bindHeader();
+  if($("doneBtn")) $("doneBtn").addEventListener("click",function(){ S.growth.done[t]=true; save(); R.crecer(); });
+  $("saveG").addEventListener("click",function(){ var arr=[]; view.querySelectorAll("[data-g]").forEach(function(x){arr.push(x.value.slice(0,120));}); S.growth.grat[t]=arr; save(); $("gOk").textContent="Guardado. Gracias por mirar lo bueno."; });
+  function showMoment(){ if(!momentSel){ $("momOut").innerHTML=""; return; } $("momOut").innerHTML=VERSES.filter(function(x){return x.m===momentSel;}).map(function(x){return '<div class="card verse"><q>'+esc(x.t)+'</q><cite>'+esc(x.r)+'</cite><p class="small muted" style="margin:8px 0 0">'+esc(x.f)+'</p></div>';}).join(""); }
+  view.querySelectorAll("[data-m]").forEach(function(b){ b.addEventListener("click",function(){ momentSel=momentSel===b.getAttribute("data-m")?null:b.getAttribute("data-m"); view.querySelectorAll("[data-m]").forEach(function(x){x.setAttribute("aria-pressed",String(x.getAttribute("data-m")===momentSel));}); showMoment(); }); });
+  if($("momOut")) showMoment();
+};
+
+/* ===================== HISTORIAL Y REPORTE ===================== */
+R.historial=function(){
+  var st=stats(), days=lastDays(7), m=logMap();
+  var wk=days.map(function(d){return m[d];}).filter(Boolean);
+  var avg=wk.length?(wk.reduce(function(a,l){return a+l.mood;},0)/wk.length):0;
+  var ok=S.cravings.filter(function(c){return !c.used;}).length;
+  var h=header({right:'<button class="circle" type="button" id="hLog" aria-label="Hacer registro de hoy">'+ic("cal")+'</button>'})+
+    '<div style="display:grid;grid-template-columns:1fr 110px;gap:8px;align-items:center"><div><h1>Historial y reporte</h1><p class="muted" style="margin:0">Revisa tu progreso y mantén buenos hábitos.</p></div><div>'+plantArt(st.cur)+'</div></div>'+
+    '<div class="section-t">Resumen semanal</div><div class="tiles">'+
+      tile("check",isRec()?"Días sin consumir":"Días en tu camino",st.cur,"")+tile("shield","Ánimo promedio",wk.length?avg.toFixed(1):"–","<small>/5</small>")+
+      tile("bell","Antojos superados",ok,"",true)+tile("clock","Registros esta semana",wk.length,"<small>/7</small>")+'</div>';
+  h+='<div class="card"><h3>Tu ánimo esta semana</h3>'+barChart(days,m)+'<div style="border-top:1.5px solid var(--line);margin:14px 0"></div><h3>'+(isRec()?'Intensidad del antojo':'Nivel de estrés')+'</h3>'+lineChart(days,m)+'</div>';
+  h+=patterns();
+  h+='<button class="btn main" id="dl" type="button">'+ic("download")+'Descargar reporte</button><div id="rep"></div>';
+  h+='<div class="section-t">Tus registros</div>'+history();
+  view.innerHTML=h; bindHeader();
+  $("hLog").addEventListener("click",logScreen);
+  $("dl").addEventListener("click",function(){
+    var txt=reportText();
+    try{ var blob=new Blob([txt],{type:"text/plain;charset=utf-8"}); var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="reporte-raiz-"+today()+".txt"; document.body.appendChild(a); a.click(); a.remove(); }catch(e){}
+    $("rep").innerHTML='<div class="card" style="margin-top:14px"><p class="small muted">Si la descarga no empezó, copia tu reporte y compártelo con tu psicólogo o consejero.</p><div class="code">'+esc(txt)+'</div><button class="btn outline small" id="cpR" type="button" style="margin-top:10px">Copiar reporte</button><p class="ok" id="cpOk"></p></div>';
+    $("cpR").addEventListener("click",function(){ copyText(txt,$("cpOk")); });
+  });
+};
+function tile(icon,label,val,suf,orange){ return '<div class="tile"><span class="icircle"'+(orange?' style="color:var(--orange);background:var(--orange-soft)"':'')+'>'+ic(icon)+'</span><div><span>'+label+'</span><b'+(orange?' class="o"':'')+'>'+val+(suf||'')+'</b></div></div>'; }
+function barChart(days,m){
+  var W=320,H=170,pl=34,pb=24,top=10,ch=H-pb-top,bw=(W-pl)/7;
+  var s='<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Ánimo de los últimos 7 días, de 0 a 100 por ciento">';
+  [0,25,50,75,100].forEach(function(v){ var y=top+ch-(v/100)*ch; s+='<line x1="'+pl+'" x2="'+W+'" y1="'+y+'" y2="'+y+'" stroke="#e6eeec" stroke-dasharray="3 4"/><text x="0" y="'+(y+4)+'">'+v+'%</text>'; });
+  days.forEach(function(d,i){ var l=m[d], x=pl+i*bw+bw*0.22, w=bw*0.56;
+    if(l){ var hh=Math.max(4,l.mood/5*ch); s+='<rect x="'+x+'" y="'+(top+ch-hh)+'" width="'+w+'" height="'+hh+'" rx="6" fill="'+(l.used?'#e07a6e':'#3aa99a')+'"><title>'+fmt(d)+': '+["","Muy mal","Mal","Regular","Bien","Muy bien"][l.mood]+'</title></rect>'; }
+    else s+='<rect x="'+x+'" y="'+(top+ch-3)+'" width="'+w+'" height="3" rx="1.5" fill="#d6e2df"/>';
+    s+='<text x="'+(x+w/2)+'" y="'+(H-4)+'" text-anchor="middle">'+(d===today()?'Hoy':DIAS[parseD(d).getDay()])+'</text>'; });
+  return s+'</svg><p class="small muted" style="margin:4px 0 0">Barra gris: sin registro. Barra rosada: día con consumo.</p>';
+}
+function lineChart(days,m){
+  var W=320,H=160,pl=28,pb=24,top=12,ch=H-pb-top,step=(W-pl-14)/6;
+  var s='<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Intensidad diaria de 0 a 10 en los últimos 7 días"><defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3aa99a" stop-opacity=".28"/><stop offset="1" stop-color="#3aa99a" stop-opacity="0"/></linearGradient></defs>';
+  [0,5,10].forEach(function(v){ var y=top+ch-(v/10)*ch; s+='<line x1="'+pl+'" x2="'+W+'" y1="'+y+'" y2="'+y+'" stroke="#e6eeec" stroke-dasharray="3 4"/><text x="4" y="'+(y+4)+'">'+v+'</text>'; });
+  var pts=[];
+  days.forEach(function(d,i){ var x=pl+7+i*step; s+='<text x="'+x+'" y="'+(H-4)+'" text-anchor="middle">'+(d===today()?'Hoy':DIAS[parseD(d).getDay()])+'</text>'; if(m[d]) pts.push([x,top+ch-(m[d].crave/10)*ch,m[d].crave,d]); });
+  if(pts.length>1){ var line=pts.map(function(p,i){return (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1);}).join(" "); s+='<path d="'+line+' L'+pts[pts.length-1][0].toFixed(1)+' '+(top+ch)+' L'+pts[0][0].toFixed(1)+' '+(top+ch)+'Z" fill="url(#ga)"/><path d="'+line+'" fill="none" stroke="#138a7e" stroke-width="2.5" stroke-linejoin="round"/>'; }
+  pts.forEach(function(p,i){ s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(i===pts.length-1?6:5)+'" fill="#fff" stroke="#138a7e" stroke-width="2.5"><title>'+fmt(p[3])+': '+p[2]+'/10</title></circle>'; });
+  if(!pts.length) s+='<text x="'+(W/2)+'" y="'+(top+ch/2)+'" text-anchor="middle">Aún no hay registros esta semana</text>';
+  return s+'</svg>';
+}
+function patterns(){
+  if(S.logs.length<3&&S.cravings.length<3) return '<div class="card tint"><h3>Tus patrones</h3><p class="small" style="margin:0">Con 3 registros o 3 momentos difíciles superados, aquí verás qué te mueve más y a qué hora llegan tus antojos.</p></div>';
+  var tc={}; S.logs.forEach(function(l){ l.trig.forEach(function(t){tc[t]=(tc[t]||0)+1;}); });
+  var topT=Object.keys(tc).sort(function(a,b){return tc[b]-tc[a];}).slice(0,3);
+  var sl=["la madrugada","la mañana","la tarde","la noche"], sc=[0,0,0,0]; S.cravings.forEach(function(c){ sc[Math.floor(new Date(c.ts).getHours()/6)]++; });
+  var ts=sc.indexOf(Math.max.apply(null,sc));
+  var fc={}; S.cravings.forEach(function(c){fc[c.f]=(fc[c.f]||0)+1;}); var tf=Object.keys(fc).sort(function(a,b){return fc[b]-fc[a];})[0];
+  var h='<div class="card tint"><h3>Tus patrones</h3><ul class="list">';
+  if(topT.length) h+='<li><span class="check">'+ic("check")+'</span><span>Lo que más te mueve: <b>'+topT.map(esc).join(", ")+'</b>.</span></li>';
+  if(S.cravings.length){ h+='<li><span class="check">'+ic("check")+'</span><span>Tus momentos difíciles llegan más en <b>'+sl[ts]+'</b>.</span></li>'; h+='<li><span class="check">'+ic("check")+'</span><span>Lo que más buscas en esos momentos: <b>'+CRAVE[tf].name.toLowerCase()+'</b>.</span></li>'; }
+  return h+'</ul><p class="small muted" style="margin:6px 0 0">Prepárate para esos momentos: quién te acompaña, a dónde vas y qué haces.</p></div>';
+}
+function history(){
+  if(!S.logs.length) return '<div class="card"><p class="muted" style="margin:0">Todavía no tienes registros. Toca el calendario arriba para hacer el de hoy.</p></div>';
+  var names=["","Muy mal","Mal","Regular","Bien","Muy bien"];
+  return '<div class="card">'+S.logs.slice().sort(function(a,b){return a.date<b.date?1:-1;}).slice(0,30).map(function(l){
+    return '<div class="log"><div class="lt"><span>'+fmt(l.date)+'</span>'+(isRec()?'<span class="tag '+(l.used?'r':'g')+'">'+(l.used?'Consumo':'Limpio')+'</span>':'')+'</div><div class="small muted">Ánimo: '+names[l.mood]+' · '+(isRec()?'antojo':'estrés')+' '+l.crave+'/10'+(l.trig.length?' · '+l.trig.map(esc).join(", "):'')+'</div>'+(l.note?'<div class="small" style="margin-top:4px">'+esc(l.note).replace(/\n/g,"<br>")+'</div>':'')+'</div>';
+  }).join("")+'</div>';
+}
+function reportText(){
+  var st=stats(), days=lastDays(7), m=logMap(), names=["","Muy mal","Mal","Regular","Bien","Muy bien"];
+  var t="REPORTE RAÍZ · "+fmt(addDays(today(),-6))+" al "+fmt(today())+"\nUsuario: "+S.user.alias+"\n\n";
+  if(isRec()) t+="Días sin consumir: "+st.cur+"\nMejor racha: "+st.best+" días\nDías limpios en total: "+st.total+"\n";
+  t+="Momentos difíciles superados: "+S.cravings.filter(function(c){return !c.used;}).length+" de "+S.cravings.length+"\n";
+  if(S.profile) t+="Perfil RAÍZ: "+PROFILES[S.profile.primary].name+" · código "+S.profile.code+"\n";
+  t+="\nÚltimos 7 días:\n";
+  days.forEach(function(d){ var l=m[d]; t+="- "+DIAS[parseD(d).getDay()]+" "+fmt(d)+": "+(l?names[l.mood]+", "+(isRec()?"antojo ":"estrés ")+l.crave+"/10"+(l.used?", CONSUMO":"")+(l.trig.length?" ("+l.trig.join(", ")+")":""):"sin registro")+"\n"; });
+  return t+"\nGenerado por Raíz. Orientativo, no es un diagnóstico.";
+}
+
+/* ===================== PERFIL ===================== */
+R.perfil=function(){
+  var u=S.user, tname=(TYPES.filter(function(t){return t[0]===u.type;})[0]||TYPES[3])[1];
+  var h=header()+'<div class="card me"><span class="avatar">'+esc(u.alias.charAt(0).toUpperCase())+'</span><div><h2 style="margin:0">'+esc(u.alias)+'</h2><p class="muted" style="margin:0">'+esc(tname)+' · '+u.age+' años</p><p class="small muted" style="margin:0">En Raíz desde el '+fmt(u.created||today())+'</p></div></div>';
+  h+='<div class="menu">'+
+    mi("mPlan","plan","Mi plan de crisis","Personas, razones y señales de alerta")+
+    mi("mTest","info","Test RAÍZ",S.profile?'Tu perfil: '+PROFILES[S.profile.primary].name:'Descubre qué tipo de tratamiento necesitas')+
+    mi("mLog","cal","Registro de hoy",todayLog()?'Ya lo hiciste. Toca para editar':'Aún no lo haces')+'</div>';
+  h+='<div class="card"><div class="toggle"><div><b style="color:var(--navy)">Contenido espiritual</b><p class="small muted" style="margin:0">Versículos y palabra del día</p></div><button type="button" class="switch" id="pSpi" role="switch" aria-checked="'+spiritual()+'" aria-label="Contenido espiritual"></button></div></div>';
+  h+='<div class="menu">'+
+    mi("mPin","lock",u.pin?"Cambiar o quitar PIN":"Proteger con PIN",u.pin?"Tu app está protegida":"Nadie más podrá abrir tu información")+
+    mi("mBk","key","Respaldo de mis datos","Para pasar tu información a otro celular")+
+    mi("mInfo","info","Información de la aplicación","Privacidad y ayuda")+
+    (u.pin?mi("mLock","lock","Cerrar sesión","Pide tu PIN al volver a entrar"):'')+'</div>';
+  h+='<button class="btn danger small" id="mWipe" type="button">'+ic("trash")+'Borrar todos mis datos</button><div id="wipeC"></div>';
+  view.innerHTML=h; bindHeader();
+  $("mPlan").addEventListener("click",planScreen);
+  $("mTest").addEventListener("click",testStart);
+  $("mLog").addEventListener("click",logScreen);
+  $("pSpi").addEventListener("click",function(){ S.user.spiritual=!spiritual(); save(); this.setAttribute("aria-checked",String(spiritual())); });
+  $("mPin").addEventListener("click",pinScreen);
+  $("mBk").addEventListener("click",backupScreen);
+  $("mInfo").addEventListener("click",function(){ about(function(){go("perfil");}); });
+  if($("mLock")) $("mLock").addEventListener("click",function(){ unlocked=false; welcome(); });
+  $("mWipe").addEventListener("click",function(){
+    $("wipeC").innerHTML='<div class="card orange" style="margin-top:12px"><p>Se borrarán tu cuenta, tus días, tus registros y tu plan. No se puede deshacer.</p><div class="stack"><button class="btn outline small" id="wNo" type="button">Cancelar</button><button class="btn danger small" id="wYes" type="button">Sí, borrar todo</button></div></div>';
+    $("wNo").addEventListener("click",function(){ $("wipeC").innerHTML=""; });
+    $("wYes").addEventListener("click",function(){ try{localStorage.removeItem(KEY);}catch(e){} S=clone(EMPTY); unlocked=false; welcome(); });
+  });
+};
+function mi(id,icon,t,sub){ return '<button class="mi" type="button" id="'+id+'"><span class="icircle sm">'+ic(icon)+'</span><span>'+esc(t)+'<span class="sub">'+esc(sub)+'</span></span><span class="chev">'+ic("chev")+'</span></button>'; }
+function pinScreen(){
+  screen(function(){
+    view.innerHTML=header({back:true,bell:false})+'<h1>'+(S.user.pin?'Cambiar PIN':'Proteger con PIN')+'</h1><p class="muted">Usa 4 números que recuerdes. Si lo olvidas, solo podrás entrar con tu código de respaldo.</p>'+
+    '<div class="card"><label class="flabel" for="np1">Nuevo PIN</label><input type="password" id="np1" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="new-password"><label class="flabel" for="np2" style="margin-top:12px">Repite el PIN</label><input type="password" id="np2" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="new-password"></div>'+
+    '<p class="err" id="pErr"></p><div class="stack"><button class="btn main" id="pSave" type="button">'+ic("save")+'Guardar PIN</button>'+(S.user.pin?'<button class="btn outline small" id="pDel" type="button">Quitar el PIN</button>':'')+'</div>';
+    bindHeader(function(){ go("perfil"); });
+    $("pSave").addEventListener("click",function(){ var a=$("np1").value,b=$("np2").value; if(!/^\d{4}$/.test(a)){ $("pErr").textContent="El PIN debe tener 4 números."; return; } if(a!==b){ $("pErr").textContent="Los dos PIN no coinciden."; return; } S.user.pin=hash(a); save(); go("perfil"); });
+    if($("pDel")) $("pDel").addEventListener("click",function(){ S.user.pin=null; save(); go("perfil"); });
+  });
+}
+function backupScreen(){
+  screen(function(){
+    var code=""; try{ code=btoa(unescape(encodeURIComponent(JSON.stringify(S)))); }catch(e){}
+    view.innerHTML=header({back:true,bell:false})+'<h1>Respaldo de mis datos</h1><p class="muted">Tu información vive solo en este celular. Copia este código y guárdalo en un lugar seguro, por ejemplo en un mensaje para ti mismo. Con él puedes recuperar todo en otro celular.</p>'+
+      '<div class="card"><div class="code">'+esc(code)+'</div><button class="btn main small" id="cpB" type="button" style="margin-top:12px">Copiar código</button><p class="ok" id="cpBo"></p></div>'+
+      '<div class="card orange small">Este código contiene tu diario y tu plan. No lo compartas con nadie.</div>'+
+      '<button class="btn outline small" id="goRest" type="button">'+ic("key")+'Recuperar con un código</button>';
+    bindHeader(function(){ go("perfil"); });
+    $("cpB").addEventListener("click",function(){ copyText(code,$("cpBo")); });
+    $("goRest").addEventListener("click",function(){ restoreScreen(backupScreen); });
+  });
+}
+function restoreScreen(back){
+  screen(function(){
+    view.innerHTML=header({back:true,bell:false})+'<h1>Recuperar mis datos</h1><p class="muted">Pega tu código de respaldo. Esto reemplaza la información que haya en este celular.</p>'+
+      '<div class="card"><textarea id="rT" aria-label="Código de respaldo" placeholder="Pega aquí tu código"></textarea></div><p class="err" id="rE"></p><button class="btn main" id="rGo" type="button">'+ic("key")+'Recuperar</button>';
+    bindHeader(back);
+    $("rGo").addEventListener("click",function(){
+      try{ var o=JSON.parse(decodeURIComponent(escape(atob($("rT").value.trim())))); if(!o||typeof o!=="object"||!Array.isArray(o.logs)) throw 0; var b=clone(EMPTY); Object.keys(o).forEach(function(k){b[k]=o[k];}); if(!b.growth) b.growth={done:{},grat:{}}; S=b; save(); if(S.user){ unlocked=!S.user.pin; if(S.user.pin) login(); else go("inicio"); } else signup(); }
+      catch(e){ $("rE").textContent="El código no es válido. Revisa que lo hayas copiado completo."; }
+    });
+  });
+}
+function planScreen(){
+  var P=S.plan; if(!P.people.length) P.people=[{name:"",phone:""}];
+  screen(function(){
+    view.innerHTML=header({back:true,bell:false})+'<h1>Mi plan de crisis</h1><p class="muted">Llénalo en un día tranquilo. Aparecerá cuando tengas un mal momento y en el botón de ayuda.</p>'+
+    '<div class="card"><span class="flabel">Mis personas de apoyo</span><div id="ppl">'+P.people.map(function(p,i){return '<div class="person"><input type="text" aria-label="Nombre" placeholder="Nombre" data-pn="'+i+'" value="'+esc(p.name)+'"><input type="tel" aria-label="Teléfono" placeholder="Teléfono" data-pp="'+i+'" value="'+esc(p.phone)+'"><button type="button" data-pd="'+i+'" aria-label="Quitar">×</button></div>';}).join("")+'</div><button type="button" class="btn soft small" id="addP">+ Agregar persona</button></div>'+
+    '<div class="card"><label class="flabel" for="pr">Mis razones para seguir</label><textarea id="pr" placeholder="Mis hijos, mi salud, volver a estudiar…">'+esc(P.reasons)+'</textarea>'+
+    '<label class="flabel" for="ps" style="margin-top:14px">Mis señales de alerta</label><textarea id="ps" placeholder="Dejo de dormir, me aíslo, busco a los amigos de antes…">'+esc(P.signals)+'</textarea>'+
+    '<label class="flabel" for="pt" style="margin-top:14px">Lo que hago en los primeros 15 minutos</label><textarea id="pt" placeholder="Salgo de ese lugar, llamo a…, respiro 4-6…">'+esc(P.steps)+'</textarea></div>'+
+    '<button class="btn main" id="savePlan" type="button">'+ic("save")+'Guardar mi plan</button><p class="ok center" id="planOk"></p>';
+    bindHeader(function(){ go("perfil"); });
+    function readP(){ var out=[]; view.querySelectorAll("[data-pn]").forEach(function(inp){ var i=inp.getAttribute("data-pn"); out.push({name:inp.value.slice(0,60),phone:view.querySelector('[data-pp="'+i+'"]').value.slice(0,30)}); }); return out; }
+    function stash(){ P.people=readP(); P.reasons=$("pr").value; P.signals=$("ps").value; P.steps=$("pt").value; }
+    $("addP").addEventListener("click",function(){ stash(); P.people.push({name:"",phone:""}); planScreen(); });
+    view.querySelectorAll("[data-pd]").forEach(function(b){ b.addEventListener("click",function(){ stash(); P.people.splice(+b.getAttribute("data-pd"),1); planScreen(); }); });
+    $("savePlan").addEventListener("click",function(){ stash(); P.people=P.people.filter(function(p){return p.name||p.phone;}); save(); $("planOk").textContent=storageOK?"Tu plan quedó guardado.":"No se pudo guardar en este navegador."; });
+  });
+}
+
+/* ===================== TEST RAÍZ ===================== */
+var STEPS=[
+  {id:"intro"},
+  {id:"seg",label:"Parte 0 · Seguridad",title:"Primero, tu seguridad",sub:"Responde con sinceridad. Nadie más verá estas respuestas.",qs:[
+    {k:"s1",t:"En las últimas dos semanas, ¿has pensado en quitarte la vida o en hacerte daño?",o:[["no","No"],["si","Sí"]],row:true},
+    {k:"s2",t:"Al dejar de consumir, ¿has tenido temblores, convulsiones, alucinaciones, confusión o sudor intenso?",o:[["no","No"],["si","Sí"]],row:true},
+    {k:"s3",t:"¿Estás viviendo ahora una situación de violencia o abuso?",o:[["no","No"],["si","Sí"]],row:true},
+    {k:"s4",t:"En el último año, ¿tuviste una sobredosis o perdiste el conocimiento por consumir?",o:[["no","No"],["si","Sí"]],row:true}]},
+  {id:"cons",label:"Parte 1 · Tu consumo",title:"Cómo es tu consumo",qs:[
+    {k:"sust",t:"Sustancia principal",o:[["alcohol","Alcohol"],["cocaina","Cocaína o pasta base"],["marihuana","Marihuana"],["pastillas","Pastillas (calmantes, para dormir)"],["opioides","Opioides (heroína, H, fentanilo)"],["meta","Metanfetamina o cristal"],["otra","Otra o varias"]]},
+    {k:"freq",t:"En el último mes, ¿con qué frecuencia consumiste?",o:[["0","No consumí (estoy en recuperación)"],["1","Menos de una vez por semana"],["2","De 1 a 3 veces por semana"],["3","De 4 a 6 veces por semana"],["4","Todos los días"]]},
+    {k:"tiempo",t:"¿Hace cuánto empezó el consumo problemático?",o:[["0","Menos de 1 año"],["1","De 1 a 5 años"],["2","Más de 5 años"]]},
+    {k:"trat",t:"¿Has estado antes en tratamiento o internado?",o:[["0","Nunca"],["1","Sí, una vez"],["2","Sí, 2 o más veces y recaí"]]}]},
+  {id:"vida",label:"Parte 1 · Tu entorno",title:"Tu vida alrededor del consumo",qs:[
+    {k:"entorno",t:"En tu casa o tu círculo más cercano…",o:[["0","Nadie consume"],["1","Alguien consume a veces"],["2","Se consume con frecuencia"]]},
+    {k:"apoyo",t:"¿Tienes al menos una persona de confianza que te apoya?",o:[["si","Sí"],["no","No"]],row:true},
+    {k:"func",t:"¿Cuánto ha afectado el consumo tu trabajo, estudios o familia?",o:[["0","Nada o casi nada"],["1","Algo"],["2","Mucho (perdí trabajo, estudios o familia)"]]},
+    {k:"mental",t:"¿Tienes diagnóstico o síntomas fuertes de depresión, ansiedad, bipolaridad u otro problema de salud mental?",o:[["no","No"],["nose","No lo sé"],["si","Sí"]],row:true}]},
+  {id:"funA",label:"Parte A · La función",title:"¿Qué te daba la sustancia? (1 de 2)",sub:"0 = nunca · 1 = a veces · 2 = seguido · 3 = casi siempre",qs:[
+    {k:"i1",t:"Consumía porque la vida normal me aburría."},{k:"i2",t:"Me gustaba el riesgo, la noche, lo prohibido."},{k:"i3",t:"Sin sustancia siento que no estoy vivo."},
+    {k:"e1",t:"Consumía para dejar de pensar o de sobrepensar."},{k:"e2",t:"Lo usaba para huir del estrés, las deudas o los problemas."},{k:"e3",t:"Me ayudaba a no sentir que estaba perdiendo el tiempo."}]},
+  {id:"funB",label:"Parte A · La función",title:"¿Qué te daba la sustancia? (2 de 2)",sub:"0 = nunca · 1 = a veces · 2 = seguido · 3 = casi siempre",qs:[
+    {k:"c1",t:"Sin sustancia me cuesta hablar con la gente."},{k:"c2",t:"Me sentía parte de un grupo solo cuando consumía."},{k:"c3",t:"Me daba valor para acercarme, reír o mostrarme."},
+    {k:"d1",t:"Consumía para no recordar cosas que me pasaron."},{k:"d2",t:"Lo usaba cuando sentía vergüenza, culpa o asco de mí."},{k:"d3",t:"Era lo único que me calmaba la tristeza o la ansiedad."}]},
+  {id:"raiz",label:"Parte B · La raíz",title:"¿Con cuál te identificas?",sub:"Marca todas las que apliquen. No necesitas contar detalles. Si ninguna aplica, continúa.",multi:true,qs:[
+    {k:"trauma",t:"Viví abuso sexual, violación, violencia física, abandono u otro hecho que todavía me pesa."},
+    {k:"imagen",t:"No acepto mi rostro o mi cuerpo. Evito espejos, fotos o que me vean."},
+    {k:"vinculo",t:"Soy tímido, apático o antisocial. Me siento solo aunque esté con gente."},
+    {k:"intens",t:"Siempre he necesitado estímulo fuerte. Me aburro rápido y actúo por impulso."},
+    {k:"mente",t:"Vivo atrapado en mi cabeza: sobrepienso, procrastino, me estreso por todo."}]},
+  {id:"res"}
+];
+var SCALE=[["0","0"],["1","1"],["2","2"],["3","3"]];
+var LEVELS={
+  N4:{n:"4",name:"Desintoxicación con supervisión médica",what:"Dejar la sustancia sin un médico puede ser peligroso en tu caso. Lo primero es una desintoxicación en un hospital o una unidad con médico. Suele durar de unos días a dos semanas, según lo que el médico decida.",team:["Médico o psiquiatra","Enfermería","Psicólogo desde el inicio"],first:["Hoy: no dejes la sustancia de golpe por tu cuenta. Busca atención médica.","Llama al 171 y pide orientación para desintoxicación, o acude a urgencias de un hospital público.","Avisa a tu persona de confianza para que te acompañe."]},
+  N3:{n:"3",name:"Tratamiento residencial (internamiento)",what:"Tu situación pide un lugar protegido por un tiempo: el consumo es intenso, el entorno no ayuda o ya hubo varias recaídas. Un internamiento suele durar de 3 a 6 meses, con terapia diaria.",team:["Psicólogo clínico","Psiquiatra","Consejero en adicciones","Terapia de grupo diaria","Trabajo con la familia"],first:["Busca un CETAD o centro acreditado por el Ministerio de Salud Pública (MSP). Pide ver su permiso de funcionamiento.","Nunca aceptes un centro que encierre contra la voluntad, use golpes, castigos o te quite el contacto con tu familia. Eso es delito, no tratamiento.","Mientras consigues cupo, usa la ruta de tu perfil y el botón de ayuda."]},
+  N2:{n:"2",name:"Tratamiento ambulatorio intensivo",what:"Puedes seguir viviendo en tu casa, pero necesitas apoyo fuerte: de 3 a 5 días por semana, con varias horas de terapia cada día, durante unos 2 a 3 meses.",team:["Psicólogo clínico","Médico o psiquiatra (revisión)","Grupo terapéutico","Mentor o compañero"],first:["Pide una cita psicológica en el 171 (opción 6) o en tu centro de salud.","Elige una persona de apoyo y cuéntale tu plan.","Empieza esta semana con el sustituto principal de tu perfil."]},
+  N1:{n:"1",name:"Tratamiento ambulatorio",what:"Tu caso puede trabajarse con una sesión semanal con un psicólogo, un grupo de apoyo y tu ruta RAÍZ, mientras sigues con tu vida diaria.",team:["Psicólogo (1 sesión por semana)","Grupo de apoyo","Compañero de recuperación"],first:["Agenda una primera cita psicológica.","Escribe tus 3 disparadores principales (hora, lugar, emoción).","Practica 3 veces esta semana el sustituto de tu perfil."]},
+  NM:{n:"M",name:"Mantenimiento y prevención de recaídas",what:"Ya no estás consumiendo. El objetivo ahora es sostenerlo y sanar la raíz para que el hueco no se llene con otra cosa.",team:["Psicólogo (cada 2 a 4 semanas)","Grupo de apoyo","Mentor o compañero"],first:["Llena tu plan de crisis en tu perfil.","Trabaja la raíz de tu perfil con tu psicólogo.","Repite este test en 4 semanas."]}
+};
+var PROFILES={
+  P1:{name:"Herida de dolor y trauma",why:"La sustancia funcionaba como anestesia. Al dejarla, el dolor suele subir primero. Eso es normal y tiene tratamiento.",therapy:["Terapia del trauma con un profesional: EMDR o terapia cognitivo-conductual centrada en trauma","Programas que tratan trauma y adicción a la vez (por ejemplo, Seeking Safety / Buscando Seguridad)","Evaluación psiquiátrica si hay insomnio, pesadillas o ataques de pánico"],sub:["Respiración lenta 4-6 durante 5 minutos, dos veces al día","Anclaje 5-4-3-2-1 cuando vuelvan los recuerdos","Expresión sin palabras: dibujo, música o escritura privada","Movimiento suave: caminar o yoga adaptado al trauma"],avoid:["Contar el trauma con detalle en grupos sin un profesional","Experiencias que den sensación de perder el control","Personas que te presionen a “superarlo” rápido"]},
+  P2:{name:"Herida de imagen",why:"La sustancia quitaba la vergüenza de ser visto. Sin ella aparecen el espejo, la comparación y el miedo a la mirada de otros.",therapy:["Terapia cognitivo-conductual para la imagen corporal","Terapia centrada en la compasión","Evaluación de trastorno dismórfico corporal si la preocupación ocupa horas al día"],sub:["Valor por lo que haces: aprende un oficio, deporte o instrumento","Higiene digital: deja de seguir cuentas que te comparan y no uses filtros de rostro","Háblate como le hablarías a un amigo","Exposición gradual: una foto, una reunión o un espejo, en pasos pequeños"],avoid:["Cirugías impulsivas","Dietas extremas o ejercicio compulsivo"]},
+  P3:{name:"Herida de vínculo",why:"La sustancia era el permiso para conectar. Sin ella vuelven la ansiedad social o el vacío. La apatía fuerte puede ser depresión y conviene evaluarla.",therapy:["Terapia cognitivo-conductual para la ansiedad social","Entrenamiento en habilidades sociales y terapia de grupo","Activación conductual y evaluación de depresión"],sub:["Únete a un grupo con tarea compartida: fútbol, coro, taller, cocina o voluntariado","Ve a un evento con alegría colectiva sin alcohol: baile, concierto, fiesta sin sustancias","Escalera social: saluda, luego haz una pregunta, luego invita un café","Habla con tu compañero fijo dos veces esta semana"],avoid:["Aislarte con pantallas toda la noche","Reemplazar la conexión real con pornografía o redes"]},
+  P4:{name:"Hambre de intensidad",why:"Tu cerebro pide estímulo fuerte y la sobriedad se siente gris. A veces hay TDAH sin diagnosticar, y vale la pena evaluarlo.",therapy:["Entrevista motivacional","Manejo de contingencias: premios concretos por metas cumplidas y días sin consumo","Evaluación de TDAH con un profesional"],sub:["Riesgo con reglas y entrenador: artes marciales, boxeo, escalada, ciclismo de montaña o surf","Ponte un reto de 30 días con marca personal","Haz algo nuevo esta semana: un lugar, una comida o una habilidad","Empieza un proyecto propio con fecha límite"],avoid:["Apuestas y juegos de azar","Velocidad al volante y peleas","Relaciones caóticas"]},
+  P5:{name:"Escape mental",why:"La sustancia apagaba la cabeza: el sobrepensar, el estrés, la culpa de procrastinar. Sin ella, la mente corre sin freno.",therapy:["Terapia cognitivo-conductual","Terapia de aceptación y compromiso (ACT)","Prevención de recaídas basada en mindfulness"],sub:["Busca una actividad de flow: música, arte, oficio manual o deporte de ritmo","Hora de preocupación: 15 minutos al día para escribir lo que preocupa; fuera de esa hora, se aplaza","Trabaja en bloques cortos de 25 minutos con descanso","Camina en la naturaleza sin el celular"],avoid:["Scroll infinito y maratones de series","Videojuegos compulsivos para no pensar"]}
+};
+var A={}, step=0, crisisShown=false;
+function testStart(){ A={}; step=0; crisisShown=false; screen(renderStep); }
+function renderStep(){
+  var s=STEPS[step], pct=Math.round(step/(STEPS.length-1)*100);
+  if(s.id==="intro") return testIntro();
+  if(s.id==="res") return testResult();
+  var h=header({back:true,bell:false})+'<div class="progress" aria-hidden="true"><i style="width:'+pct+'%"></i></div><p class="small" style="color:var(--teal);font-weight:700;margin:0 0 4px">'+esc(s.label)+'</p><h1 style="font-size:26px">'+esc(s.title)+'</h1>'+(s.sub?'<p class="muted">'+esc(s.sub)+'</p>':'')+'<div class="card">';
+  s.qs.forEach(function(q){
+    h+='<div class="q"><div class="qt" id="lbl-'+q.k+'">'+esc(q.t)+'</div>';
+    if(s.multi){ var on=A[q.k]===true; h+='<button type="button" class="opt" data-multi="'+q.k+'" aria-pressed="'+on+'">'+(on?"Sí, me identifico":"Me identifico")+'</button>'; }
+    else { var o=q.o||SCALE,row=q.row||!q.o; h+='<div class="opts'+(row?" row":"")+'" role="group" aria-labelledby="lbl-'+q.k+'">'+o.map(function(x){return '<button type="button" class="opt" data-k="'+q.k+'" data-v="'+x[0]+'" aria-pressed="'+(A[q.k]===x[0])+'">'+esc(x[1])+'</button>';}).join("")+'</div>'; }
+    h+='</div>';
+  });
+  h+='</div><p class="err" id="err"></p><button class="btn main" type="button" id="next">Continuar</button>';
+  view.innerHTML=h;
+  bindHeader(function(){ step=Math.max(0,step-1); renderStep(); top0(); });
+  view.querySelectorAll("[data-k]").forEach(function(b){ b.addEventListener("click",function(){ var k=b.getAttribute("data-k"),v=b.getAttribute("data-v"); A[k]=v; b.parentNode.querySelectorAll(".opt").forEach(function(x){x.setAttribute("aria-pressed",String(x===b));}); if(k==="s1"&&v==="si"&&!crisisShown){crisisShown=true;openCrisis();} }); });
+  view.querySelectorAll("[data-multi]").forEach(function(b){ b.addEventListener("click",function(){ var k=b.getAttribute("data-multi"); A[k]=!A[k]; b.setAttribute("aria-pressed",String(A[k])); b.textContent=A[k]?"Sí, me identifico":"Me identifico"; }); });
+  $("next").addEventListener("click",function(){
+    if(!s.multi){ var miss=s.qs.filter(function(q){return A[q.k]===undefined;}); if(miss.length){ $("err").textContent="Falta responder "+miss.length+(miss.length===1?" pregunta.":" preguntas."); return; } }
+    step++; renderStep(); top0();
+  });
+}
+function testIntro(){
+  view.innerHTML=header({back:true,bell:false})+'<h1>Test RAÍZ</h1><p class="muted">Descubre qué tipo de tratamiento necesitas. Son unas 35 preguntas cortas, unos 10 minutos.</p>'+
+  '<div class="card"><ul class="list">'+["El <b>nivel de tratamiento</b> que corresponde a tu situación.","Tu <b>perfil</b>: qué te daba la sustancia y cuál es la herida de fondo.","Las <b>terapias recomendadas</b>, sustitutos sanos y qué evitar.","Un <b>código anónimo</b> para mostrarle a un profesional."].map(function(x){return '<li><span class="check">'+ic("check")+'</span><span>'+x+'</span></li>';}).join("")+'</ul></div>'+
+  (S.profile?'<div class="card tint small">Tu último test fue el '+fmt(S.profile.date)+'. Al repetirlo verás tu avance.</div>':'')+
+  '<button class="btn main" type="button" id="start">Empezar</button>';
+  bindHeader(function(){ go(current); });
+  $("start").addEventListener("click",function(){ step=1; renderStep(); top0(); });
+}
+function n(k){return parseInt(A[k]||"0",10);}
+function compute(){
+  var F={I:n("i1")+n("i2")+n("i3"),E:n("e1")+n("e2")+n("e3"),C:n("c1")+n("c2")+n("c3"),D:n("d1")+n("d2")+n("d3")};
+  var freq=n("freq"), sev=freq+n("tiempo")+n("trat")+n("entorno")+(A.apoyo==="no"?2:0)+n("func")+(A.mental==="si"?1:0);
+  var detox=A.s2==="si"||A.s4==="si"||(freq===4&&["alcohol","pastillas","opioides"].indexOf(A.sust)>=0);
+  var base;
+  if(freq===0) base=((n("trat")===2&&A.apoyo==="no")||A.mental==="si")?"N2":"NM";
+  else if(sev>=10||(freq>=3&&n("trat")===2)||(freq>=3&&n("entorno")===2&&A.apoyo==="no")) base="N3";
+  else if(sev>=6||A.mental==="si") base="N2"; else base="N1";
+  var c=[];
+  if(A.trauma||F.D>=6)c.push("P1"); if(A.imagen)c.push("P2"); if(A.vinculo||F.C>=6)c.push("P3"); if(A.intens||F.I>=6)c.push("P4"); if(A.mente||F.E>=6)c.push("P5");
+  if(!c.length){ var map={I:"P4",E:"P5",C:"P3",D:"P1"}; c.push(map[Object.keys(F).sort(function(a,b){return F[b]-F[a];})[0]]); }
+  return {F:F,sev:sev,detox:detox,base:base,primary:c[0],second:c[1]||null};
+}
+function plist(a){return '<ul class="list">'+a.map(function(x){return '<li><span class="check">'+ic("check")+'</span><span>'+esc(x)+'</span></li>';}).join("")+'</ul>';}
+function fbar(l,v){return '<div class="fbar"><span>'+l+'</span><div class="bar" style="margin:0"><i style="width:'+Math.round(v/9*100)+'%"></i></div><b>'+v+'/9</b></div>';}
+function testResult(){
+  var r=compute(), L=LEVELS[r.base], P=PROFILES[r.primary], P2=r.second?PROFILES[r.second]:null, prev=S.profile;
+  var h=header({back:true,bell:false})+'<h1>Tu ruta RAÍZ</h1>';
+  if(A.s1==="si") h+='<div class="card red"><b>Tu seguridad va primero.</b> Dijiste que has pensado en hacerte daño. Antes de cualquier plan, habla hoy con alguien: <b>171, opción 6</b> o <b>911</b>.<button class="btn outline small" type="button" id="reopen" style="margin-top:10px">Ver números de ayuda</button></div>';
+  if(A.s3==="si") h+='<div class="card red"><b>Estás viviendo violencia.</b> Tienes derecho a estar a salvo. En peligro inmediato llama al <b>911</b>. También puedes acudir a la Fiscalía o a una organización de apoyo a víctimas. Tú decides cuándo y cuánto contar.</div>';
+  h+='<div class="card">';
+  if(r.detox) h+='<h3>Paso 1</h3><div class="level"><span class="n">4</span><div><b style="color:var(--navy)">'+esc(LEVELS.N4.name)+'</b><p class="small" style="margin:6px 0 0">'+esc(LEVELS.N4.what)+'</p></div></div><h3>Paso 2</h3>';
+  else h+='<h3>Tipo de tratamiento recomendado</h3>';
+  h+='<div class="level"><span class="n">'+L.n+'</span><div><b style="color:var(--navy)">'+esc(L.name)+'</b><p class="small" style="margin:6px 0 0">'+esc(L.what)+'</p></div></div><p style="margin:12px 0 6px"><b>Tu equipo:</b></p><div>'+L.team.map(function(t){return '<span class="pill">'+esc(t)+'</span>';}).join("")+'</div></div>';
+  h+='<div class="card tint"><h2>Tu perfil: '+esc(P.name)+'</h2><p>'+esc(P.why)+'</p>'+(P2?'<p class="small muted">También tienes rasgos de <b>'+esc(P2.name)+'</b>. Trabaja primero tu perfil principal.</p>':'')+
+    '<p style="margin:10px 0 8px"><b>Qué te daba la sustancia</b></p>'+fbar("Intensidad",r.F.I)+fbar("Escape",r.F.E)+fbar("Conexión",r.F.C)+fbar("Apagar el dolor",r.F.D)+'<p class="small muted" style="margin:6px 0 0">6 o más = función fuerte.</p>';
+  if(prev&&prev.F){ var tot=function(F){return F.I+F.E+F.C+F.D;}; var d=tot(r.F)-tot(prev.F); h+='<p class="small" style="margin:10px 0 0">Comparado con tu test del '+fmt(prev.date)+': '+(d<0?'la fuerza de las funciones bajó '+(-d)+' puntos. Vas avanzando.':d>0?'subió '+d+' puntos. Es un buen momento para pedir más apoyo.':'se mantiene igual.')+'</p>'; }
+  h+='</div><div class="card"><h3>Terapias recomendadas</h3>'+plist(P.therapy)+'</div><div class="card"><h3>Tus sustitutos sanos</h3>'+plist(P.sub)+'</div>';
+  h+='<div class="card orange"><h3>Evita</h3><ul class="plain">'+P.avoid.concat(["Cambiar la sustancia por otra “más suave”, hierbas o pastillas sin receta"]).map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul></div>';
+  h+='<div class="card"><h3>Tus primeros 7 días</h3>'+plist((r.detox?LEVELS.N4.first:[]).concat(L.first))+'</div>';
+  var flags=[A.s1==="si"?"riesgo-suicida":"",A.s2==="si"?"abstinencia-fisica":"",A.s3==="si"?"violencia":"",A.s4==="si"?"sobredosis":"",A.mental==="si"?"salud-mental":""].filter(Boolean);
+  var code="RAIZ-"+(r.detox?"N4>":"")+L.n+"-"+r.primary+(r.second?"/"+r.second:"")+"-I"+r.F.I+"E"+r.F.E+"C"+r.F.C+"D"+r.F.D+"-G"+r.sev;
+  var summary="Código: "+code+"\nNivel sugerido: "+(r.detox?"4 (desintoxicación médica) y luego ":"")+L.n+" ("+L.name+")\nPerfil: "+P.name+(P2?" · secundario: "+P2.name:"")+"\nFunciones (0-9): Intensidad "+r.F.I+", Escape "+r.F.E+", Conexión "+r.F.C+", Dolor "+r.F.D+"\nSustancia principal: "+A.sust+" · frecuencia "+A.freq+"/4 · gravedad "+r.sev+"/15\nAlertas: "+(flags.length?flags.join(", "):"ninguna")+"\nOrientativo, no es diagnóstico.";
+  h+='<div class="card"><h3>Código para tu profesional</h3><p class="small muted">Muéstralo en tu primera cita. No contiene tu nombre.</p><div class="code">'+esc(summary)+'</div></div>';
+  h+='<div class="stack"><button class="btn main" type="button" id="saveProf">'+ic("save")+'Guardar mi perfil</button><button class="btn outline small" type="button" id="copy">Copiar resumen</button></div><p class="ok center" id="msg"></p>';
+  h+='<p class="small muted">Este resultado es una orientación. Un psicólogo, psiquiatra o médico debe confirmar el tratamiento. Repite el test cada 4 semanas.</p>';
+  view.innerHTML=h; bindHeader(function(){ go("perfil"); });
+  if($("reopen")) $("reopen").addEventListener("click",openCrisis);
+  $("copy").addEventListener("click",function(){ copyText(summary,$("msg")); });
+  $("saveProf").addEventListener("click",function(){ S.profile={date:today(),level:r.base,detox:r.detox,primary:r.primary,second:r.second,F:r.F,code:code}; save(); $("msg").textContent=storageOK?"Perfil guardado.":"No se pudo guardar en este navegador."; });
+}
+
+/* ===================== Crisis ===================== */
+var ov=$("crisis");
+function openCrisis(){
+  var p=S.plan.people.filter(function(x){return x.name||x.phone;});
+  $("crisisPeople").innerHTML=p.length?'<h3>Tu gente</h3>'+p.map(function(x){return '<p style="margin:0 0 6px"><b>'+esc(x.name)+'</b> '+(x.phone?'<a href="tel:'+esc(x.phone.replace(/[^0-9+]/g,""))+'" style="color:var(--teal);font-weight:700">'+esc(x.phone)+'</a>':'')+'</p>';}).join(""):'<p>Si puedes, escribe ahora a alguien de confianza: “¿Puedes venir o llamarme? No estoy bien.”</p>';
+  ov.classList.add("open"); $("closeCrisis").focus();
+}
+$("closeCrisis").addEventListener("click",function(){ ov.classList.remove("open"); });
+sos.addEventListener("click",openCrisis);
+document.addEventListener("keydown",function(e){ if(e.key==="Escape") ov.classList.remove("open"); });
+
+/* ===================== Arranque ===================== */
+if(!S.user) welcome();
+else if(S.user.pin) welcome();
+else { unlocked=true; go("inicio"); }
+})();
+</script>
+</body>
+</html>
