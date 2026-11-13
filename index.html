@@ -105,6 +105,11 @@ textarea{min-height:90px;resize:vertical}
 .verse{position:relative}
 .verse q{display:block;font:500 19px/1.45 var(--display);color:var(--navy);quotes:"“" "”"}
 .verse cite{display:block;font-style:normal;font-weight:700;color:var(--teal);margin-top:8px}
+.verse cite::after{content:" · versión libre";font-weight:400;color:var(--muted);font-size:14px}
+.sph{background:linear-gradient(180deg,#eef6fb,#e3eef6);border-color:#c7dbe8}
+.sph .date{font:700 13px var(--body);letter-spacing:.08em;text-transform:uppercase;color:#4d7ea8}
+.sph .pledge{font:600 21px/1.35 var(--display);color:var(--navy);margin:6px 0 0}
+.sph .pledge b{color:#a04a3a}
 .list{list-style:none;padding:0;margin:4px 0 0}
 .list li{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
 .list li:first-child{border-top:0}
@@ -311,10 +316,10 @@ function waveArt(){
 
 /* ===================== Datos (solo en este celular) ===================== */
 var KEY="raiz-de-vida-v2";
-var EMPTY={user:null,start:null,cleanSince:null,logs:[],cravings:[],plan:{people:[],reasons:"",signals:"",steps:""},profile:null,growth:{done:{},grat:{}}};
+var EMPTY={user:null,start:null,cleanSince:null,logs:[],cravings:[],plan:{people:[],reasons:"",signals:"",steps:""},profile:null,growth:{done:{},grat:{},jft:{}}};
 function clone(o){return JSON.parse(JSON.stringify(o));}
 var storageOK=true;
-function load(){ try{ var t=localStorage.getItem(KEY); if(t){ var o=JSON.parse(t), b=clone(EMPTY); Object.keys(o).forEach(function(k){b[k]=o[k];}); if(!b.growth) b.growth={done:{},grat:{}}; if(!b.growth.grat) b.growth.grat={}; if(!b.growth.done) b.growth.done={}; return b; } }catch(e){ storageOK=false; } return clone(EMPTY); }
+function load(){ try{ var t=localStorage.getItem(KEY); if(t){ var o=JSON.parse(t), b=clone(EMPTY); Object.keys(o).forEach(function(k){b[k]=o[k];}); if(!b.growth) b.growth={done:{},grat:{}}; if(!b.growth.grat) b.growth.grat={}; if(!b.growth.done) b.growth.done={}; if(!b.growth.jft) b.growth.jft={}; return b; } }catch(e){ storageOK=false; } return clone(EMPTY); }
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); storageOK=true; }catch(e){ storageOK=false; } }
 var S=load();
 var unlocked=false;
@@ -339,28 +344,32 @@ function copyText(t,out){ try{ navigator.clipboard.writeText(t).then(function(){
 
 /* ===================== Contenido ===================== */
 var VERSES=[
- {r:"Mateo 6:34",t:"Así que, no os afanéis por el día de mañana, porque el día de mañana traerá su afán. Basta a cada día su propio mal.",f:"Solo por hoy. No tienes que resolver toda tu vida, solo este día.",c:"Escribe una sola cosa que harás hoy por tu bienestar y cúmplela.",m:"ansiedad"},
- {r:"1 Corintios 10:13",t:"No os ha sobrevenido ninguna tentación que no sea humana; pero fiel es Dios, que no os dejará ser tentados más de lo que podéis resistir, sino que dará también juntamente con la tentación la salida, para que podáis soportar.",f:"Toda tentación trae una salida. Búscala antes de que crezca.",c:"Define tu salida de hoy: a quién llamas y a dónde vas si llega el antojo.",m:"antojo"},
- {r:"Filipenses 4:13",t:"Todo lo puedo en Cristo que me fortalece.",f:"No estás peleando solo. La fuerza que te falta también te puede llegar.",c:"Haz hoy algo difícil que has estado evitando.",m:"antojo"},
- {r:"Miqueas 7:8",t:"Aunque caí, me levantaré; aunque more en tinieblas, Jehová será mi luz.",f:"Caer no es el final. Levantarse es parte del camino.",c:"Perdónate por un error del pasado y escribe qué aprendiste.",m:"recaida"},
- {r:"2 Corintios 5:17",t:"De modo que si alguno está en Cristo, nueva criatura es; las cosas viejas pasaron; he aquí todas son hechas nuevas.",f:"Tu pasado explica de dónde vienes, no decide a dónde vas.",c:"Deja hoy algo viejo: borra un contacto, una app o un camino que te lleva al consumo.",m:"recaida"},
- {r:"Lamentaciones 3:22-23",t:"Por la misericordia de Jehová no hemos sido consumidos, porque nunca decayeron sus misericordias. Nuevas son cada mañana; grande es tu fidelidad.",f:"Cada mañana es una nueva oportunidad, sin importar cómo terminó ayer.",c:"Empieza el día dando gracias por 3 cosas.",m:"recaida"},
- {r:"Salmos 34:18",t:"Cercano está Jehová a los quebrantados de corazón; y salva a los contritos de espíritu.",f:"El dolor no te aleja de la ayuda. Muchas veces es donde más cerca está.",c:"Cuéntale a alguien de confianza cómo te sientes de verdad.",m:"soledad"},
- {r:"Mateo 11:28",t:"Venid a mí todos los que estáis trabajados y cargados, y yo os haré descansar.",f:"Descansar también es parte de recuperarse.",c:"Toma 10 minutos de descanso sin pantallas: respira, ora o camina.",m:"ansiedad"},
- {r:"Isaías 41:10",t:"No temas, porque yo estoy contigo; no desmayes, porque yo soy tu Dios que te esfuerzo; siempre te ayudaré, siempre te sustentaré con la diestra de mi justicia.",f:"El miedo no se va del todo, pero no tiene que decidir por ti.",c:"Enfrenta un pequeño miedo hoy: una llamada, una conversación o un trámite.",m:"miedo"},
- {r:"Josué 1:9",t:"Mira que te mando que te esfuerces y seas valiente; no temas ni desmayes, porque Jehová tu Dios estará contigo en dondequiera que vayas.",f:"Ser valiente también es decir “no” cuando todos dicen “sí”.",c:"Di que no a una invitación que no te conviene.",m:"miedo"},
- {r:"Salmos 23:1",t:"Jehová es mi pastor; nada me faltará.",f:"El vacío no se llena con cosas. Pregúntate qué necesitas de verdad.",c:"Antes de comprar o buscar algo, pregúntate: ¿lo necesito o quiero llenar un vacío?",m:"ansiedad"},
- {r:"Proverbios 3:5-6",t:"Fíate de Jehová de todo tu corazón, y no te apoyes en tu propia prudencia. Reconócelo en todos tus caminos, y él enderezará tus veredas.",f:"Pedir guía no es debilidad. Nadie se recupera solo.",c:"Pide un consejo a alguien con más experiencia que tú.",m:"crecer"},
- {r:"Romanos 12:2",t:"No os conforméis a este siglo, sino transformaos por medio de la renovación de vuestro entendimiento.",f:"Lo que alimentas en tu mente es lo que crece.",c:"Cambia 30 minutos de redes por leer, aprender o hacer ejercicio.",m:"crecer"},
- {r:"Gálatas 5:22-23",t:"Mas el fruto del Espíritu es amor, gozo, paz, paciencia, benignidad, bondad, fe, mansedumbre, templanza; contra tales cosas no hay ley.",f:"La recuperación se nota en cómo tratas a los demás.",c:"Practica la paciencia: hoy no le levantes la voz a nadie.",m:"crecer"},
- {r:"Efesios 4:32",t:"Antes sed benignos unos con otros, misericordiosos, perdonándoos unos a otros, como Dios también os perdonó a vosotros en Cristo.",f:"Perdonar te libera a ti primero.",c:"Pide perdón o perdona a alguien, aunque sea con un mensaje.",m:"crecer"},
- {r:"Santiago 1:19",t:"Por esto, mis amados hermanos, todo hombre sea pronto para oír, tardo para hablar, tardo para airarse.",f:"Escuchar bien evita muchas peleas y muchas recaídas.",c:"En tu próxima conversación, escucha sin interrumpir.",m:"crecer"},
- {r:"Proverbios 4:23",t:"Sobre toda cosa guardada, guarda tu corazón; porque de él mana la vida.",f:"Cuidarte también es alejarte de lo que te hace daño.",c:"Aléjate hoy de un lugar o una persona que te pone en riesgo.",m:"antojo"},
- {r:"1 Pedro 5:7",t:"Echando toda vuestra ansiedad sobre él, porque él tiene cuidado de vosotros.",f:"No tienes que cargar todo tú solo.",c:"Escribe tu preocupación más grande y entrégala en oración o en silencio.",m:"ansiedad"},
- {r:"Salmos 46:1",t:"Dios es nuestro amparo y fortaleza, nuestro pronto auxilio en las tribulaciones.",f:"En el peor momento también hay refugio.",c:"Ayuda a alguien hoy sin esperar nada a cambio.",m:"soledad"},
- {r:"Jeremías 29:11",t:"Porque yo sé los pensamientos que tengo acerca de vosotros, dice Jehová, pensamientos de paz, y no de mal, para daros el fin que esperáis.",f:"Tu historia todavía se está escribiendo.",c:"Escribe una meta para tu vida dentro de un año.",m:"crecer"},
- {r:"Eclesiastés 4:9-10",t:"Mejores son dos que uno; porque tienen mejor paga de su trabajo. Porque si cayeren, el uno levantará a su compañero; pero ¡ay del solo! que cuando cayere, no habrá segundo que lo levante.",f:"Busca a alguien que te levante y sé tú quien levante a otro.",c:"Ve a una reunión de grupo o llama a tu compañero de recuperación.",m:"soledad"}
+ {r:"Mateo 6:34",t:"No se preocupen por el mañana, porque el mañana traerá sus propias preocupaciones. A cada día le basta su propio problema.",f:"Solo por hoy. No tienes que resolver toda tu vida, solo este día.",c:"Escribe una sola cosa que harás hoy por tu bienestar y cúmplela.",m:"ansiedad"},
+ {r:"1 Corintios 10:13",t:"Ninguna tentación que te llega es distinta a la que viven los demás. Dios es fiel: no dejará que la prueba sea más fuerte de lo que puedes aguantar, y junto con la tentación te dará también una salida para que puedas resistir.",f:"Toda tentación trae una salida. Búscala antes de que crezca.",c:"Define tu salida de hoy: a quién llamas y a dónde vas si llega el antojo.",m:"antojo"},
+ {r:"Filipenses 4:13",t:"Puedo enfrentar cualquier cosa gracias a Cristo, que me da la fuerza.",f:"No estás peleando solo. La fuerza que te falta también te puede llegar.",c:"Haz hoy algo difícil que has estado evitando.",m:"antojo"},
+ {r:"Miqueas 7:8",t:"Aunque me caí, me voy a levantar; aunque esté en la oscuridad, el Señor será mi luz.",f:"Caer no es el final. Levantarse es parte del camino.",c:"Perdónate por un error del pasado y escribe qué aprendiste.",m:"recaida"},
+ {r:"2 Corintios 5:17",t:"Si alguien está en Cristo, es una persona nueva: lo viejo ya pasó y todo empieza de nuevo.",f:"Tu pasado explica de dónde vienes, no decide a dónde vas.",c:"Deja hoy algo viejo: borra un contacto, una app o un camino que te lleva al consumo.",m:"recaida"},
+ {r:"Lamentaciones 3:22-23",t:"Gracias al amor del Señor no hemos sido destruidos; su compasión nunca se acaba. Cada mañana se renueva. ¡Qué grande es su fidelidad!",f:"Cada mañana es una nueva oportunidad, sin importar cómo terminó ayer.",c:"Empieza el día dando gracias por 3 cosas.",m:"recaida"},
+ {r:"Salmos 34:18",t:"El Señor está cerca de los que tienen el corazón roto y rescata a los que se sienten sin ánimo.",f:"El dolor no te aleja de la ayuda. Muchas veces es donde más cerca está.",c:"Cuéntale a alguien de confianza cómo te sientes de verdad.",m:"soledad"},
+ {r:"Mateo 11:28",t:"Vengan a mí todos los que están cansados y llevan cargas pesadas, y yo les daré descanso.",f:"Descansar también es parte de recuperarse.",c:"Toma 10 minutos de descanso sin pantallas: respira, ora o camina.",m:"ansiedad"},
+ {r:"Isaías 41:10",t:"No tengas miedo, porque yo estoy contigo; no te angusties, porque yo soy tu Dios. Yo te doy fuerzas, te ayudo y te sostengo con mi mano.",f:"El miedo no se va del todo, pero no tiene que decidir por ti.",c:"Enfrenta un pequeño miedo hoy: una llamada, una conversación o un trámite.",m:"miedo"},
+ {r:"Josué 1:9",t:"Sé fuerte y valiente. No tengas miedo ni te desanimes, porque el Señor tu Dios estará contigo a donde vayas.",f:"Ser valiente también es decir “no” cuando todos dicen “sí”.",c:"Di que no a una invitación que no te conviene.",m:"miedo"},
+ {r:"Salmos 23:1",t:"El Señor es mi pastor; tengo todo lo que necesito.",f:"El vacío no se llena con cosas. Pregúntate qué necesitas de verdad.",c:"Antes de comprar o buscar algo, pregúntate: ¿lo necesito o quiero llenar un vacío?",m:"ansiedad"},
+ {r:"Proverbios 3:5-6",t:"Confía en el Señor con todo tu corazón y no dependas solo de lo que tú entiendes. Tenlo presente en todo lo que hagas, y él te mostrará el camino correcto.",f:"Pedir guía no es debilidad. Nadie se recupera solo.",c:"Pide un consejo a alguien con más experiencia que tú.",m:"crecer"},
+ {r:"Romanos 12:2",t:"No vivas copiando lo que hace todo el mundo; deja que Dios te transforme cambiando tu manera de pensar.",f:"Lo que alimentas en tu mente es lo que crece.",c:"Cambia 30 minutos de redes por leer, aprender o hacer ejercicio.",m:"crecer"},
+ {r:"Gálatas 5:22-23",t:"El fruto del Espíritu es amor, alegría, paz, paciencia, amabilidad, bondad, fidelidad, humildad y dominio propio.",f:"La recuperación se nota en cómo tratas a los demás.",c:"Practica la paciencia: hoy no le levantes la voz a nadie.",m:"crecer"},
+ {r:"Efesios 4:32",t:"Sean amables y compasivos unos con otros, y perdónense, así como Dios los perdonó a ustedes por medio de Cristo.",f:"Perdonar te libera a ti primero.",c:"Pide perdón o perdona a alguien, aunque sea con un mensaje.",m:"crecer"},
+ {r:"Santiago 1:19",t:"Todos deben estar listos para escuchar, ser lentos para hablar y lentos para enojarse.",f:"Escuchar bien evita muchas peleas y muchas recaídas.",c:"En tu próxima conversación, escucha sin interrumpir.",m:"crecer"},
+ {r:"Proverbios 4:23",t:"Por encima de todo, cuida tu corazón, porque de él depende tu vida.",f:"Cuidarte también es alejarte de lo que te hace daño.",c:"Aléjate hoy de un lugar o una persona que te pone en riesgo.",m:"antojo"},
+ {r:"1 Pedro 5:7",t:"Pongan en manos de Dios todas sus preocupaciones, porque él cuida de ustedes.",f:"No tienes que cargar todo tú solo.",c:"Escribe tu preocupación más grande y entrégala en oración o en silencio.",m:"ansiedad"},
+ {r:"Salmos 46:1",t:"Dios es nuestro refugio y nuestra fuerza; siempre está listo para ayudarnos en los momentos difíciles.",f:"En el peor momento también hay refugio.",c:"Ayuda a alguien hoy sin esperar nada a cambio.",m:"soledad"},
+ {r:"Jeremías 29:11",t:"Yo sé los planes que tengo para ustedes, dice el Señor: planes para su bienestar y no para su mal, para darles un futuro lleno de esperanza.",f:"Tu historia todavía se está escribiendo.",c:"Escribe una meta para tu vida dentro de un año.",m:"crecer"},
+ {r:"Eclesiastés 4:9-10",t:"Es mejor estar dos que uno solo. Si uno se cae, el otro lo levanta. ¡Pobre del que está solo y se cae, porque no tiene quien lo ayude a levantarse!",f:"Busca a alguien que te levante y sé tú quien levante a otro.",c:"Ve a una reunión de grupo o llama a tu compañero de recuperación.",m:"soledad"}
 ];
+var SPH=["voy a pedir ayuda antes de que sea tarde.","voy a cuidar mi cuerpo: comer bien, dormir y moverme.","no voy a pelear con mi pasado; voy a vivir este día.","voy a llamar a alguien que también se está recuperando.","voy a decir la verdad, aunque me cueste.","voy a alejarme de los lugares donde antes consumía.","voy a agradecer tres cosas antes de dormir.","voy a escuchar más de lo que hablo.","voy a terminar una tarea que he dejado para después.","voy a tratar con paciencia a mi familia.","voy a aceptar lo que no puedo cambiar.","voy a hacer algo bueno por alguien sin que lo sepa.","voy a ir a una reunión o hablar con mi padrino o madrina.","voy a sentir mis emociones sin huir de ellas.","voy a perdonarme un error.","voy a dejar el celular un rato y mirar a la gente a los ojos.","voy a reírme de algo sencillo.","voy a pedir perdón si lastimé a alguien.","voy a respetar mis límites y los de los demás.","voy a salir a caminar y respirar aire limpio.","voy a recordar cómo era mi vida cuando consumía, y por qué no quiero volver.","voy a celebrar cada hora limpia como una victoria.","voy a aprender algo nuevo.","voy a ordenar un espacio de mi casa.","voy a confiar en que no estoy solo.","voy a cuidar mis palabras.","voy a cumplir lo que prometa.","voy a dar las gracias en voz alta.","no me voy a comparar con nadie.","voy a orar o meditar unos minutos en silencio.","voy a acercarme a alguien que está empezando su recuperación."];
+var MESESL=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+function sphToday(){ var d=parseD(today()), start=new Date(d.getFullYear(),0,1), doy=Math.round((d-start)/86400000); return SPH[doy%SPH.length]; }
+function longDate(s){ var d=parseD(s); return d.getDate()+" de "+MESESL[d.getMonth()]; }
 var MOMENTS=[["antojo","Cuando tengo un antojo"],["recaida","Cuando caí"],["soledad","Cuando me siento solo"],["ansiedad","Cuando tengo ansiedad"],["miedo","Cuando tengo miedo"],["crecer","Para ser mejor persona"]];
 function verseToday(){ return VERSES[((diffDays("2026-01-01",today())%VERSES.length)+VERSES.length)%VERSES.length]; }
 var TRIGS=["Estrés","Soledad","Aburrimiento","Discusión","Amigos o fiesta","Dinero o pago","Recuerdo doloroso","Cansancio","Lugar de consumo","Vergüenza o culpa","Redes o pantallas","Otro"];
@@ -417,7 +426,7 @@ function about(back){
     '<p>Raíz nace de una experiencia real de recuperación. Te ayuda a contar tus días, salir de un antojo, registrar cómo te sientes, crecer en lo espiritual y saber qué tipo de tratamiento necesitas.</p>'+
     '<div class="card tint"><h3>Tu privacidad</h3><ul class="plain"><li>No pedimos tu nombre real, correo ni teléfono.</li><li>Todo se guarda solo en este celular. Nadie más lo ve.</li><li>Puedes proteger la app con un PIN y borrar todo cuando quieras.</li></ul></div>'+
     '<div class="card"><h3>Importante</h3><p class="small">Raíz acompaña, pero no reemplaza a un psicólogo, médico o centro de tratamiento. En una emergencia llama al <b>911</b> o al <b>171, opción 6</b>.</p></div>'+
-    '<p class="small muted">Textos bíblicos: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988. Utilizado con permiso.</p>';
+    '<p class="small muted">Los versículos están escritos en una versión libre en español latino, fiel al sentido del texto. Busca la cita en tu Biblia para leerla completa.</p>';
     bindHeader(back);
   });
 }
@@ -542,12 +551,14 @@ R.inicio=function(){
     indRow("smile","Ánimo",moodPct,tl?["","Muy mal","Mal","Regular","Bien","Muy bien"][tl.mood]:'Sin registro hoy',tl?(tl.mood>=3?"ok":"o"):"none")+
     indRow(isRec()?"flame":"wind",isRec()?"Control del antojo":"Calma",cravePct,tl?(tl.crave<=3?'Antojo bajo hoy':tl.crave<=6?'Antojo moderado: usa tus herramientas':'Antojo fuerte: no estás solo'):'Sin registro hoy',tl?(tl.crave<=6?"ok":"o"):"none")+
     indRow("sprout","Tu racha",racha,st.cur+' de '+next+' días hacia tu próxima meta',st.cur>0?"ok":"none")+'</div>';
+  h+='<button class="card sph" id="goSph" type="button" style="display:block;width:100%;text-align:left;cursor:pointer;font:inherit"><div class="date">Sólo por hoy · '+longDate(today())+'</div><p class="pledge" style="font-size:19px"><b>Sólo por hoy</b>, '+esc(sphToday())+'</p><p class="small muted" style="margin:8px 0 0">Toca para tu lectura del día</p></button>';
   if(spiritual()) h+='<div class="card verse"><div style="display:flex;gap:12px;align-items:center;margin-bottom:10px"><span class="icircle sm">'+ic("book")+'</span><h3 style="margin:0">Versículo del día</h3></div><q>'+esc(v.t)+'</q><cite>'+esc(v.r)+'</cite></div>';
   else h+='<div class="card"><div style="display:flex;gap:12px;align-items:center;margin-bottom:10px"><span class="icircle sm">'+ic("bulb")+'</span><h3 style="margin:0">Para hoy</h3></div><p style="font:500 19px var(--display);color:var(--navy);margin:0">'+esc(v.f)+'</p></div>';
   h+='<button class="btn main" id="goCrave" type="button">'+ic(isRec()?"flame":"wind")+(isRec()?'Tengo un antojo ahora':'Necesito calma ahora')+'</button>';
   if(!S.profile&&isRec()) h+='<button class="link" id="goTest" type="button">'+ic("info")+'Descubre qué tipo de tratamiento necesitas'+ic("chev")+'</button>';
   view.innerHTML=h; bindHeader();
   $("goCrave").addEventListener("click",function(){go("antojo");});
+  $("goSph").addEventListener("click",function(){go("crecer");});
   if($("doLog")) $("doLog").addEventListener("click",logScreen);
   if($("goTest")) $("goTest").addEventListener("click",testStart);
 };
@@ -653,6 +664,13 @@ R.crecer=function(){
   var v=verseToday(), t=today(), done=!!S.growth.done[t], g=S.growth.grat[t]||["","",""];
   var streak=0, d=t; if(!done) d=addDays(t,-1); while(S.growth.done[d]&&streak<3650){ streak++; d=addDays(d,-1); }
   var h=header()+'<h1>Crecer</h1><p class="muted">Recuperarte también es convertirte en la persona que quieres ser.</p>';
+  var jn=S.growth.jft[t]||"";
+  h+='<div class="card sph"><div class="date">Sólo por hoy · '+longDate(t)+'</div><p class="pledge"><b>Sólo por hoy</b>, '+esc(sphToday())+'</p>'+
+     '<div style="border-top:1.5px solid #c7dbe8;margin:16px 0 12px"></div>'+
+     '<p style="margin:0 0 4px;font-weight:700;color:var(--navy)">¿Tienes el libro <i>Sólo por Hoy</i>?</p><p class="small" style="margin:0 0 10px">Ábrelo en el <b>'+longDate(t)+'</b>, léelo con calma y escribe aquí lo que te dejó la lectura.</p>'+
+     '<textarea id="jftN" maxlength="1500" placeholder="Lo que me llevo de la lectura de hoy…" style="background:#fff">'+esc(jn)+'</textarea>'+
+     '<button class="btn outline small" id="saveJ" type="button" style="margin-top:10px">Guardar mi reflexión</button><p class="ok" id="jOk"></p>'+
+     '<a class="link" href="https://na.org/?p=4964" target="_blank" rel="noopener" style="text-decoration:none">'+ic("book")+'Lecturas diarias en el sitio oficial de NA'+ic("chev")+'</a></div>';
   if(spiritual()) h+='<div class="card verse tint"><div style="display:flex;gap:12px;align-items:center;margin-bottom:12px"><span class="icircle sm" style="background:#fff">'+ic("book")+'</span><h3 style="margin:0">Palabra de hoy</h3></div><q>'+esc(v.t)+'</q><cite>'+esc(v.r)+'</cite><p style="margin:12px 0 0">'+esc(v.f)+'</p></div>';
   else h+='<div class="card tint"><h3>Para pensar hoy</h3><p style="font:500 19px var(--display);color:var(--navy);margin:0">'+esc(v.f)+'</p></div>';
   h+='<div class="card"><div style="display:flex;gap:12px;align-items:center;margin-bottom:8px"><span class="icircle sm">'+ic("sprout")+'</span><h3 style="margin:0">Reto de hoy</h3></div><p style="font-weight:600;color:var(--navy)">'+esc(v.c)+'</p>'+
@@ -663,9 +681,10 @@ R.crecer=function(){
      '<button class="btn outline small" id="saveG" type="button">Guardar</button><p class="ok" id="gOk"></p></div>';
   if(spiritual()){
     h+='<div class="section-t">Una palabra para cada momento</div><div class="chips" id="moms">'+MOMENTS.map(function(m){return '<button type="button" class="chip" data-m="'+m[0]+'" aria-pressed="'+(momentSel===m[0])+'">'+m[1]+'</button>';}).join("")+'</div><div id="momOut" style="margin-top:14px"></div>';
-    h+='<p class="small muted" style="margin-top:18px">Textos bíblicos: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988. Utilizado con permiso.</p>';
+    h+='<p class="small muted" style="margin-top:18px">Los versículos están escritos en una versión libre en español latino, fiel al sentido del texto. Busca la cita en tu Biblia para leerla completa.</p>';
   }
   view.innerHTML=h; bindHeader();
+  $("saveJ").addEventListener("click",function(){ S.growth.jft[t]=$("jftN").value.slice(0,1500); save(); $("jOk").textContent="Guardado."; });
   if($("doneBtn")) $("doneBtn").addEventListener("click",function(){ S.growth.done[t]=true; save(); R.crecer(); });
   $("saveG").addEventListener("click",function(){ var arr=[]; view.querySelectorAll("[data-g]").forEach(function(x){arr.push(x.value.slice(0,120));}); S.growth.grat[t]=arr; save(); $("gOk").textContent="Guardado. Gracias por mirar lo bueno."; });
   function showMoment(){ if(!momentSel){ $("momOut").innerHTML=""; return; } $("momOut").innerHTML=VERSES.filter(function(x){return x.m===momentSel;}).map(function(x){return '<div class="card verse"><q>'+esc(x.t)+'</q><cite>'+esc(x.r)+'</cite><p class="small muted" style="margin:8px 0 0">'+esc(x.f)+'</p></div>';}).join(""); }
@@ -746,6 +765,7 @@ function reportText(){
   if(S.profile) t+="Perfil RAÍZ: "+PROFILES[S.profile.primary].name+" · código "+S.profile.code+"\n";
   t+="\nÚltimos 7 días:\n";
   days.forEach(function(d){ var l=m[d]; t+="- "+DIAS[parseD(d).getDay()]+" "+fmt(d)+": "+(l?names[l.mood]+", "+(isRec()?"antojo ":"estrés ")+l.crave+"/10"+(l.used?", CONSUMO":"")+(l.trig.length?" ("+l.trig.join(", ")+")":""):"sin registro")+"\n"; });
+  if(S.growth.jft&&S.growth.jft[today()]) t+="\nReflexión Sólo por hoy: "+S.growth.jft[today()]+"\n";
   return t+"\nGenerado por Raíz. Orientativo, no es un diagnóstico.";
 }
 
