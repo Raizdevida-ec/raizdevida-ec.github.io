@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#138a7e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Raíz">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
 <title>Raíz</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -414,10 +422,11 @@ function welcome(){
       '<p class="center" style="font-size:19px;color:var(--ink);margin:0 10px 26px">Acompañamiento para tu recuperación y tu crecimiento como persona, un día a la vez</p>'+
       '<div class="stack"><button class="btn main" id="wLogin" type="button">'+ic("user")+'Iniciar sesión</button>'+
       '<button class="btn outline" id="wSign" type="button">'+ic("userplus")+'Crear cuenta</button></div>'+
-      '<button class="link" id="wInfo" type="button">'+ic("info")+'Información de la aplicación'+ic("chev")+'</button>';
+      '<button class="link" id="wInfo" type="button">'+ic("info")+'Información de la aplicación'+ic("chev")+'</button>'+(isStandalone()?'':'<button class="link" id="wInst" type="button" style="margin-top:0">'+ic("download")+'Instalar la app en mi celular'+ic("chev")+'</button>');
     $("wLogin").addEventListener("click",login);
     $("wSign").addEventListener("click",function(){ if(S.user){ login(); } else signup(); });
     $("wInfo").addEventListener("click",function(){ about(welcome); });
+    if($("wInst")) $("wInst").addEventListener("click",function(){ installScreen(welcome); });
   });
 }
 function about(back){
@@ -781,6 +790,7 @@ R.perfil=function(){
   h+='<div class="menu">'+
     mi("mPin","lock",u.pin?"Cambiar o quitar PIN":"Proteger con PIN",u.pin?"Tu app está protegida":"Nadie más podrá abrir tu información")+
     mi("mBk","key","Respaldo de mis datos","Para pasar tu información a otro celular")+
+    (isStandalone()?"":mi("mInst","download","Instalar la app","Ícono en tu pantalla y uso sin internet"))+
     mi("mInfo","info","Información de la aplicación","Privacidad y ayuda")+
     (u.pin?mi("mLock","lock","Cerrar sesión","Pide tu PIN al volver a entrar"):'')+'</div>';
   h+='<button class="btn danger small" id="mWipe" type="button">'+ic("trash")+'Borrar todos mis datos</button><div id="wipeC"></div>';
@@ -792,6 +802,7 @@ R.perfil=function(){
   $("mPin").addEventListener("click",pinScreen);
   $("mBk").addEventListener("click",backupScreen);
   $("mInfo").addEventListener("click",function(){ about(function(){go("perfil");}); });
+  if($("mInst")) $("mInst").addEventListener("click",function(){ installScreen(function(){go("perfil");}); });
   if($("mLock")) $("mLock").addEventListener("click",function(){ unlocked=false; welcome(); });
   $("mWipe").addEventListener("click",function(){
     $("wipeC").innerHTML='<div class="card orange" style="margin-top:12px"><p>Se borrarán tu cuenta, tus días, tus registros y tu plan. No se puede deshacer.</p><div class="stack"><button class="btn outline small" id="wNo" type="button">Cancelar</button><button class="btn danger small" id="wYes" type="button">Sí, borrar todo</button></div></div>';
@@ -982,6 +993,27 @@ function openCrisis(){
 $("closeCrisis").addEventListener("click",function(){ ov.classList.remove("open"); });
 sos.addEventListener("click",openCrisis);
 document.addEventListener("keydown",function(e){ if(e.key==="Escape") ov.classList.remove("open"); });
+
+/* ===================== Instalar app ===================== */
+var deferredPrompt=null;
+window.addEventListener("beforeinstallprompt",function(e){ e.preventDefault(); deferredPrompt=e; });
+window.addEventListener("appinstalled",function(){ deferredPrompt=null; });
+function isStandalone(){ try{ return window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true; }catch(e){ return false; } }
+function isIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1); }
+function installScreen(back){
+  screen(function(){
+    var h=header({back:true,bell:false})+'<div class="center"><div style="width:120px;margin:0 auto 6px">'+logo(120)+'</div><h1>Instala Raíz</h1><p class="muted">Tendrás el ícono en tu pantalla, se abrirá como app y funcionará sin internet.</p></div>';
+    if(isStandalone()) h+='<div class="card tint center"><div class="icircle lg" style="margin:0 auto 10px">'+ic("check")+'</div><h3>Ya tienes Raíz instalada</h3><p class="muted" style="margin:0">Estás usando la app.</p></div>';
+    else if(deferredPrompt) h+='<button class="btn main" id="doInst" type="button">'+ic("download")+'Instalar app</button><p class="ok center" id="instMsg"></p>';
+    else if(isIOS()) h+='<div class="card"><h3>En iPhone (Safari)</h3><ul class="list">'+["Abre esta página en <b>Safari</b>.","Toca el botón <b>Compartir</b> (el cuadro con una flecha hacia arriba).","Elige <b>Agregar a pantalla de inicio</b> y toca <b>Agregar</b>."].map(function(x){return '<li><span class="check">'+ic("check")+'</span><span>'+x+'</span></li>';}).join("")+'</ul></div>';
+    else h+='<div class="card"><h3>En Android (Chrome)</h3><ul class="list">'+["Toca el menú <b>⋮</b> arriba a la derecha.","Elige <b>Instalar app</b> o <b>Agregar a la pantalla principal</b>.","Confirma con <b>Instalar</b>."].map(function(x){return '<li><span class="check">'+ic("check")+'</span><span>'+x+'</span></li>';}).join("")+'</ul></div>'+
+      '<div class="card"><h3>En la computadora (Chrome o Edge)</h3><ul class="list">'+["Busca el ícono de <b>instalar</b> al final de la barra de direcciones.","O abre el menú <b>⋮</b> y elige <b>Instalar Raíz</b>."].map(function(x){return '<li><span class="check">'+ic("check")+'</span><span>'+x+'</span></li>';}).join("")+'</ul></div>';
+    h+='<p class="small muted center">Tu información sigue guardada solo en tu dispositivo.</p>';
+    view.innerHTML=h; bindHeader(back);
+    if($("doInst")) $("doInst").addEventListener("click",function(){ var p=deferredPrompt; if(!p) return; p.prompt(); p.userChoice.then(function(r){ deferredPrompt=null; $("instMsg").textContent=r.outcome==="accepted"?"¡Listo! Busca el ícono de Raíz en tu pantalla.":"Puedes instalarla cuando quieras."; }); });
+  });
+}
+if("serviceWorker" in navigator){ window.addEventListener("load",function(){ try{ navigator.serviceWorker.register("sw.js").catch(function(){}); }catch(e){} }); }
 
 /* ===================== Arranque ===================== */
 if(!S.user) welcome();
